@@ -891,6 +891,35 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </main>
 <div class="toast" id="toast">저장완료</div>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCDX6sy0ap61t3k60J8oWvIZq5nAoRUvY8",
+    authDomain: "service2-kpi.firebaseapp.com",
+    databaseURL: "https://service2-kpi-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "service2-kpi",
+    storageBucket: "service2-kpi.firebasestorage.app",
+    messagingSenderId: "839616671899",
+    appId: "1:839616671899:web:7deec77e60818339fe163e"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  // Expose to global scope for use in other scripts
+  window.firebaseDB = database;
+  window.firebaseRef = ref;
+  window.firebaseSet = set;
+  window.firebaseGet = get;
+  window.firebaseReady = true;
+</script>
+
 <script>
 const SK='svc_ops2_kpi_v12';
 const trackerData=[
@@ -936,8 +965,8 @@ const defaultChildren = {
 };
 let childrenData = JSON.parse(JSON.stringify(defaultChildren));
 
-function init(){
-  loadData();
+async function init(){
+  await loadData();
   buildTracker();
   buildCalendar();
   renderAllChildren();
@@ -1444,13 +1473,23 @@ function saveAll(){
       data.tasks[k].push(row);
     });
   }
-  localStorage.setItem(SK,JSON.stringify(data));
-  showToast('저장완료');
+  // Firebase에 데이터 저장
+  const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
+  window.firebaseSet(dbRef, data).then(() => {
+    showToast('저장완료');
+  }).catch((error) => {
+    console.error('Firebase 저장 오류:', error);
+    showToast('저장 실패');
+  });
 }
 
-function loadData(){
+async function loadData(){
   try{
-    const d=JSON.parse(localStorage.getItem(SK));if(!d)return;
+    // Firebase에서 데이터 불러오기
+    const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
+    const snapshot = await window.firebaseGet(dbRef);
+    if(!snapshot.exists())return;
+    const d = snapshot.val();
     if(d.company)document.getElementById('company-goal').value=d.company;
     if(d.mission)document.getElementById('team-mission').value=d.mission;
     if(d.sales)document.getElementById('current-sales').value=d.sales;
@@ -1538,7 +1577,15 @@ function exportTracker(){
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',1500);}
 
-init();
+// Firebase가 준비될 때까지 기다린 후 초기화
+function waitForFirebase() {
+  if (window.firebaseReady) {
+    init();
+  } else {
+    setTimeout(waitForFirebase, 50);
+  }
+}
+waitForFirebase();
 </script>
 </body>
 </html>
