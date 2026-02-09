@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>서비스운영2팀 KPI 대시보드 2026</title>
+<title>서비스운영2팀 KPI 대시보드 2026 v14</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -286,6 +286,27 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .grandchild-status{padding:2px 8px;border-radius:8px;font-size:0.55rem;font-weight:700}
 .grandchild-status.pending{background:var(--gray-100);color:var(--gray-500)}
 .grandchild-status.done{background:var(--kpi3-light);color:#059669}
+/* 메모 버튼 및 모달 스타일 */
+.memo-btn{background:var(--primary-light);border:none;color:var(--primary);padding:4px 8px;border-radius:6px;font-size:0.65rem;cursor:pointer;margin-left:8px;transition:all 0.2s}
+.memo-btn:hover{background:var(--primary);color:#fff}
+.memo-btn.has-memo{background:var(--warning);color:#fff}
+.memo-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center}
+.memo-modal.open{display:flex}
+.memo-box{background:#fff;border-radius:var(--radius-lg);padding:20px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+.memo-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--gray-100)}
+.memo-title{font-size:1rem;font-weight:700;color:var(--gray-800)}
+.memo-close{background:none;border:none;font-size:1.5rem;color:var(--gray-400);cursor:pointer}
+.memo-close:hover{color:var(--danger)}
+.memo-textarea{width:100%;min-height:150px;padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:0.85rem;resize:vertical;font-family:inherit}
+.memo-textarea:focus{outline:none;border-color:var(--primary)}
+.memo-history{margin-top:16px;max-height:200px;overflow-y:auto}
+.memo-history-title{font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-bottom:8px}
+.memo-entry{background:var(--gray-50);border-radius:var(--radius);padding:10px;margin-bottom:8px;border-left:3px solid var(--primary)}
+.memo-entry-date{font-size:0.65rem;color:var(--gray-400);margin-bottom:4px}
+.memo-entry-text{font-size:0.8rem;color:var(--gray-700);white-space:pre-wrap}
+.memo-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.memo-save-btn{padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-weight:600;cursor:pointer}
+.memo-save-btn:hover{background:var(--primary-dark)}
 /* 캘린더 스타일 */
 .calendar-section{background:#fff;border-radius:var(--radius);padding:16px;margin-top:16px;border:2px solid var(--kpi2-light)}
 .calendar-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
@@ -891,6 +912,22 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </main>
 <div class="toast" id="toast">저장완료</div>
+<!-- 메모 모달 -->
+<div class="memo-modal" id="memo-modal">
+<div class="memo-box">
+<div class="memo-header">
+<div class="memo-title" id="memo-modal-title">📝 진행상황 메모</div>
+<button class="memo-close" onclick="closeMemo()">×</button>
+</div>
+<textarea class="memo-textarea" id="memo-textarea" placeholder="진행상황을 입력하세요... (담당자, 날짜, 진행내용 등)"></textarea>
+<div class="memo-history" id="memo-history">
+<div class="memo-history-title">📋 이전 기록</div>
+</div>
+<div class="memo-actions">
+<button class="memo-save-btn" onclick="saveMemo()">💾 메모 추가</button>
+</div>
+</div>
+</div>
 
 <script type="module">
   // Import the functions you need from the SDKs you need
@@ -930,6 +967,8 @@ const trackerData=[
 ];
 let taskCnt={1:0,2:0,3:0,4:0};
 let mgmtCounter=6; // 새 관리지표용 ID 카운터
+let memoData = {}; // 메모 데이터 저장
+let currentMemoId = null; // 현재 편집중인 메모 ID
 
 // 초기 하위항목 데이터
 const defaultChildren = {
@@ -970,8 +1009,94 @@ async function init(){
   buildTracker();
   buildCalendar();
   renderAllChildren();
+  addMemoButtons(); // 메모 버튼 추가
   for(let k=1;k<=4;k++)calcAct(k);
   calcKpi3();calcKpi4();calcSales();calcGrade();
+}
+
+// 모든 sub-item에 메모 버튼 추가
+function addMemoButtons(){
+  document.querySelectorAll('.sub-item').forEach(item=>{
+    const header = item.querySelector('.sub-item-header');
+    const id = item.dataset.id;
+    if(header && !header.querySelector('.memo-btn')){
+      const delBtn = header.querySelector('.sub-item-del');
+      const memoBtn = document.createElement('button');
+      memoBtn.className = 'memo-btn' + (memoData[id] && memoData[id].length > 0 ? ' has-memo' : '');
+      memoBtn.innerHTML = '📝 메모';
+      memoBtn.onclick = function(e){
+        e.stopPropagation();
+        openMemo(id, item.querySelector('.sub-item-title').textContent);
+      };
+      if(delBtn){
+        header.insertBefore(memoBtn, delBtn);
+      }else{
+        header.appendChild(memoBtn);
+      }
+    }
+  });
+}
+
+// 메모 모달 열기
+function openMemo(id, title){
+  currentMemoId = id;
+  document.getElementById('memo-modal-title').textContent = '📝 ' + title.replace(/^[^\s]+\s*/, '');
+  document.getElementById('memo-textarea').value = '';
+  renderMemoHistory(id);
+  document.getElementById('memo-modal').classList.add('open');
+}
+
+// 메모 모달 닫기
+function closeMemo(){
+  document.getElementById('memo-modal').classList.remove('open');
+  currentMemoId = null;
+}
+
+// 메모 히스토리 렌더링
+function renderMemoHistory(id){
+  const historyEl = document.getElementById('memo-history');
+  const entries = memoData[id] || [];
+  if(entries.length === 0){
+    historyEl.innerHTML = '<div class="memo-history-title">📋 이전 기록</div><div style="color:var(--gray-400);font-size:0.75rem;padding:10px">아직 등록된 메모가 없습니다.</div>';
+  }else{
+    let html = '<div class="memo-history-title">📋 이전 기록 (' + entries.length + '건)</div>';
+    entries.slice().reverse().forEach((entry, idx)=>{
+      html += `<div class="memo-entry">
+        <div class="memo-entry-date">${entry.date} ${entry.author ? '- ' + entry.author : ''}</div>
+        <div class="memo-entry-text">${entry.text}</div>
+      </div>`;
+    });
+    historyEl.innerHTML = html;
+  }
+}
+
+// 메모 저장
+function saveMemo(){
+  const text = document.getElementById('memo-textarea').value.trim();
+  if(!text){
+    alert('메모 내용을 입력해주세요.');
+    return;
+  }
+  if(!memoData[currentMemoId]){
+    memoData[currentMemoId] = [];
+  }
+  const now = new Date();
+  const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  memoData[currentMemoId].push({
+    date: dateStr,
+    text: text,
+    author: ''
+  });
+  document.getElementById('memo-textarea').value = '';
+  renderMemoHistory(currentMemoId);
+  // 메모 버튼에 표시 업데이트
+  const item = document.querySelector(`.sub-item[data-id="${currentMemoId}"]`);
+  if(item){
+    const btn = item.querySelector('.memo-btn');
+    if(btn) btn.classList.add('has-memo');
+  }
+  saveAll();
+  showToast('메모가 추가되었습니다');
 }
 
 // 하위항목 렌더링
@@ -1162,6 +1287,7 @@ function addNewMgmt(){
       <input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
       <span class="sub-item-title">📋 ${title}</span>
       <span class="sub-item-status pending">진행중</span>
+      <button class="memo-btn" onclick="event.stopPropagation();openMemo('${parentId}','${title}')">📝 메모</button>
       <button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
     </div>
     <div class="sub-item-children">
@@ -1195,6 +1321,7 @@ function addNewMgmt2(){
       <input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
       <span class="sub-item-title">📋 ${title}</span>
       <span class="sub-item-status pending">진행중</span>
+      <button class="memo-btn" onclick="event.stopPropagation();openMemo('${parentId}','${title}')">📝 메모</button>
       <button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
     </div>
     <div class="sub-item-children">
@@ -1228,6 +1355,7 @@ function addNewMgmt3(){
       <input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
       <span class="sub-item-title">📋 ${title}</span>
       <span class="sub-item-status pending">진행중</span>
+      <button class="memo-btn" onclick="event.stopPropagation();openMemo('${parentId}','${title}')">📝 메모</button>
       <button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
     </div>
     <div class="sub-item-children">
@@ -1449,15 +1577,47 @@ function saveAll(){
     grades:{s:document.getElementById('grade-s')?.value||0,a:document.getElementById('grade-a')?.value||0,b:document.getElementById('grade-b')?.value||0,c:document.getElementById('grade-c')?.value||0,n:document.getElementById('grade-n')?.value||0,f:document.getElementById('grade-f')?.value||0},
     acts:{},tracker:{},tasks:{1:[],2:[],3:[],4:[]},
     childrenData:childrenData,
-    mgmtItems:[],
+    mgmtItems:{kpi1:[],kpi2:[],kpi3:[]},
     mgmtCounter:mgmtCounter,
-    calendar:[]
+    calendar:[],
+    memoData:memoData
   };
-  // 관리지표 상태 저장
+  // 관리지표 상태 저장 - 모든 KPI
   document.querySelectorAll('#mgmt-list-1 .sub-item').forEach(item=>{
     const check=item.querySelector('.sub-item-check');
     const title=item.querySelector('.sub-item-title').textContent;
-    data.mgmtItems.push({id:item.dataset.id,title:title,checked:check?.checked||false});
+    const link=item.querySelector('.sub-item-link');
+    data.mgmtItems.kpi1.push({
+      id:item.dataset.id,
+      title:title,
+      checked:check?.checked||false,
+      link:link?link.getAttribute('href'):null,
+      linkText:link?link.textContent:null
+    });
+  });
+  document.querySelectorAll('#mgmt-list-2 .sub-item').forEach(item=>{
+    const check=item.querySelector('.sub-item-check');
+    const title=item.querySelector('.sub-item-title').textContent;
+    const link=item.querySelector('.sub-item-link');
+    data.mgmtItems.kpi2.push({
+      id:item.dataset.id,
+      title:title,
+      checked:check?.checked||false,
+      link:link?link.getAttribute('href'):null,
+      linkText:link?link.textContent:null
+    });
+  });
+  document.querySelectorAll('#mgmt-list-3 .sub-item').forEach(item=>{
+    const check=item.querySelector('.sub-item-check');
+    const title=item.querySelector('.sub-item-title').textContent;
+    const link=item.querySelector('.sub-item-link');
+    data.mgmtItems.kpi3.push({
+      id:item.dataset.id,
+      title:title,
+      checked:check?.checked||false,
+      link:link?link.getAttribute('href'):null,
+      linkText:link?link.textContent:null
+    });
   });
   // 활동 체크박스
   document.querySelectorAll('input[data-k]').forEach(cb=>{data.acts[`${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`]=cb.checked;});
@@ -1507,8 +1667,76 @@ async function loadData(){
     if(d.mgmtCounter){
       mgmtCounter=d.mgmtCounter;
     }
-    // 관리지표 상태 복원
+    if(d.memoData){
+      memoData=d.memoData;
+    }
+    // 관리지표 복원 (동적으로 추가된 항목 포함)
     if(d.mgmtItems){
+      // KPI 1 관리지표 복원
+      if(d.mgmtItems.kpi1){
+        const defaultIds = ['m1','m2','m3','m4','m5'];
+        d.mgmtItems.kpi1.forEach(item=>{
+          // 기본 항목은 체크 상태만 복원
+          if(defaultIds.includes(item.id)){
+            const subItem=document.querySelector(`#mgmt-list-1 .sub-item[data-id="${item.id}"]`);
+            if(subItem){
+              const check=subItem.querySelector('.sub-item-check');
+              if(check){
+                check.checked=item.checked;
+                updateSubItemStatus(check);
+              }
+            }
+          }else{
+            // 동적으로 추가된 항목은 DOM에 추가
+            if(!document.querySelector(`#mgmt-list-1 .sub-item[data-id="${item.id}"]`)){
+              createDynamicMgmtItem('mgmt-list-1', item);
+            }
+          }
+        });
+      }
+      // KPI 2 관리지표 복원
+      if(d.mgmtItems.kpi2){
+        const defaultIds = ['k2m1'];
+        d.mgmtItems.kpi2.forEach(item=>{
+          if(defaultIds.includes(item.id)){
+            const subItem=document.querySelector(`#mgmt-list-2 .sub-item[data-id="${item.id}"]`);
+            if(subItem){
+              const check=subItem.querySelector('.sub-item-check');
+              if(check){
+                check.checked=item.checked;
+                updateSubItemStatus(check);
+              }
+            }
+          }else{
+            if(!document.querySelector(`#mgmt-list-2 .sub-item[data-id="${item.id}"]`)){
+              createDynamicMgmtItem('mgmt-list-2', item);
+            }
+          }
+        });
+      }
+      // KPI 3 관리지표 복원
+      if(d.mgmtItems.kpi3){
+        const defaultIds = ['k3m1'];
+        d.mgmtItems.kpi3.forEach(item=>{
+          if(defaultIds.includes(item.id)){
+            const subItem=document.querySelector(`#mgmt-list-3 .sub-item[data-id="${item.id}"]`);
+            if(subItem){
+              const check=subItem.querySelector('.sub-item-check');
+              if(check){
+                check.checked=item.checked;
+                updateSubItemStatus(check);
+              }
+            }
+          }else{
+            if(!document.querySelector(`#mgmt-list-3 .sub-item[data-id="${item.id}"]`)){
+              createDynamicMgmtItem('mgmt-list-3', item);
+            }
+          }
+        });
+      }
+    }
+    // 구버전 호환 (mgmtItems가 배열인 경우)
+    else if(d.mgmtItems && Array.isArray(d.mgmtItems)){
       d.mgmtItems.forEach(item=>{
         const subItem=document.querySelector(`.sub-item[data-id="${item.id}"]`);
         if(subItem){
@@ -1545,6 +1773,39 @@ async function loadData(){
     }
     calcTr();calcKpi3();calcKpi4();calcSales();calcGrade();
   }catch(e){console.error(e);}
+}
+
+// 동적 관리지표 항목 생성
+function createDynamicMgmtItem(listId, item){
+  const list = document.getElementById(listId);
+  if(!list) return;
+  
+  if(!childrenData[item.id]){
+    childrenData[item.id] = [];
+  }
+  
+  const hasMemo = memoData[item.id] && memoData[item.id].length > 0;
+  const newItem = document.createElement('div');
+  newItem.className = 'sub-item' + (item.checked ? ' completed' : '');
+  newItem.dataset.id = item.id;
+  newItem.innerHTML = `
+    <div class="sub-item-header" onclick="toggleSubItem(this)">
+      <span class="sub-item-arrow">▶</span>
+      <input type="checkbox" class="sub-item-check" ${item.checked?'checked':''} onclick="event.stopPropagation();updateSubItemStatus(this)">
+      <span class="sub-item-title">${item.title}</span>
+      <span class="sub-item-status ${item.checked?'done':'pending'}">${item.checked?'완료':'진행중'}</span>
+      <button class="memo-btn${hasMemo?' has-memo':''}" onclick="event.stopPropagation();openMemo('${item.id}','${item.title.replace(/'/g,"\\'")}')">📝 메모</button>
+      <button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+    </div>
+    <div class="sub-item-children">
+      <div class="child-list" id="children-${item.id}"></div>
+      <div class="add-child-row">
+        <input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'${item.id}')">
+        <button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'${item.id}')">+ 추가</button>
+      </div>
+    </div>
+  `;
+  list.appendChild(newItem);
 }
 
 function exportAll(){
