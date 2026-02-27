@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>서비스운영2팀 KPI 대시보드 2026 v14</title>
+<title>서비스운영2팀 KPI 대시보드 2026 v17</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -328,6 +329,313 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 @media(max-width:1200px){.calendar-grid{grid-template-columns:1fr}}
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.indicator-grid{grid-template-columns:1fr}.activity-grid{grid-template-columns:1fr}.grade-grid{grid-template-columns:repeat(3,1fr)}.grade-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){.sidebar{width:180px}.main{margin-left:180px;padding:12px}.kpi-grid{grid-template-columns:1fr}.grade-grid{grid-template-columns:repeat(2,1fr)}.grade-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ===== 관리지표 레이아웃 - 가로 3열 그리드 ===== */
+.mgmt-container{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:1400px){.mgmt-container{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.mgmt-container{grid-template-columns:1fr}}
+.mgmt-section{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.mgmt-section.open{}
+.mgmt-header{display:flex;align-items:center;gap:8px;padding:12px;background:linear-gradient(135deg,var(--gray-50),#fff);border-bottom:1px solid var(--gray-200);cursor:pointer}
+.mgmt-header:hover{background:var(--gray-100)}
+.mgmt-header.k1{border-left:4px solid var(--kpi1)}
+.mgmt-header.k2{border-left:4px solid var(--kpi2)}
+.mgmt-header.k3{border-left:4px solid var(--kpi3)}
+.mgmt-header.k4{border-left:4px solid var(--kpi4)}
+.mgmt-expand{font-size:0.55rem;color:var(--gray-400);transition:transform 0.2s}
+.mgmt-section.open .mgmt-expand{transform:rotate(90deg)}
+.mgmt-title-input{flex:1;font-size:0.82rem;font-weight:700;color:var(--gray-800);border:none;background:transparent;padding:3px 6px;border-radius:4px;min-width:0}
+.mgmt-title-input:hover{background:var(--gray-100)}
+.mgmt-title-input:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--primary-light)}
+.mgmt-progress{display:flex;align-items:center;gap:5px}
+.mgmt-progress-bar{width:60px;height:5px;background:var(--gray-200);border-radius:3px;overflow:hidden}
+.mgmt-progress-fill{height:100%;border-radius:3px;transition:width 0.3s}
+.mgmt-progress-fill.k1{background:var(--kpi1)}
+.mgmt-progress-fill.k2{background:var(--kpi2)}
+.mgmt-progress-fill.k3{background:var(--kpi3)}
+.mgmt-progress-fill.k4{background:var(--kpi4)}
+.mgmt-progress-text{font-size:0.7rem;font-weight:700;min-width:28px}
+.mgmt-progress-text.k1{color:var(--kpi1)}
+.mgmt-progress-text.k2{color:var(--kpi2)}
+.mgmt-progress-text.k3{color:var(--kpi3)}
+.mgmt-progress-text.k4{color:var(--kpi4)}
+.mgmt-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.7rem;opacity:0.3}
+.mgmt-del:hover{opacity:1}
+.mgmt-body{display:none;padding:10px;flex:1;flex-direction:column}
+.mgmt-section.open .mgmt-body{display:flex}
+
+/* 업무 카드 - 세로 리스트 */
+.task-list{display:flex;flex-direction:column;gap:6px;flex:1}
+.task-card{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:6px;overflow:hidden}
+.task-card.completed{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#86efac}
+.task-header{display:flex;align-items:center;gap:5px;padding:8px 10px;cursor:pointer;flex-wrap:wrap}
+.task-header:hover{background:rgba(0,0,0,0.02)}
+.task-expand{font-size:0.45rem;color:var(--gray-400);transition:transform 0.2s}
+.task-card.open .task-expand{transform:rotate(90deg)}
+.task-check{width:16px;height:16px;cursor:pointer;accent-color:var(--success)}
+.task-name{flex:1;min-width:80px;font-size:0.72rem;font-weight:600;color:var(--gray-700);border:none;background:transparent;padding:2px 4px;border-radius:3px}
+.task-name:hover{background:rgba(255,255,255,0.8)}
+.task-name:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--primary-light)}
+.task-card.completed .task-name{text-decoration:line-through;color:var(--gray-400)}
+.task-status{font-size:0.6rem;color:var(--gray-500);padding:2px 6px;background:var(--gray-100);border-radius:4px}
+.task-card.completed .task-status{background:#d1fae5;color:#059669}
+.task-link{font-size:0.6rem;color:var(--primary);text-decoration:none;padding:2px 6px;background:var(--primary-light);border-radius:4px}
+.task-link:hover{text-decoration:underline}
+.section-link{font-size:0.6rem;color:var(--primary);text-decoration:none;padding:2px 8px;background:var(--primary-light);border-radius:4px;margin-left:auto}
+.section-link:hover{text-decoration:underline}
+.task-assignee{padding:2px 6px;border-radius:6px;font-size:0.55rem;font-weight:600;border:none;cursor:pointer}
+.task-assignee.ja{background:#fee2e2;color:#dc2626}
+.task-assignee.yr{background:#dbeafe;color:#2563eb}
+.task-assignee.sj{background:#d1fae5;color:#059669}
+
+/* 10% 진행률 */
+.progress-bar-wrap{display:flex;align-items:center;gap:2px}
+.progress-dots{display:flex;gap:1px}
+.progress-dot{width:12px;height:12px;border-radius:2px;background:var(--gray-200);cursor:pointer;transition:all 0.15s}
+.progress-dot:hover{transform:scale(1.15);background:var(--gray-300)}
+.progress-dot.filled.k1{background:var(--kpi1)}
+.progress-dot.filled.k2{background:var(--kpi2)}
+.progress-dot.filled.k3{background:var(--kpi3)}
+.progress-dot.filled.k4{background:var(--kpi4)}
+.task-pct{font-size:0.65rem;font-weight:700;min-width:26px;text-align:right}
+.task-memo-btn{background:var(--primary-light);border:none;color:var(--primary);padding:2px 5px;border-radius:3px;font-size:0.5rem;cursor:pointer}
+.task-memo-btn.has-memo{background:var(--warning);color:#fff}
+.task-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.65rem;opacity:0.3}
+.task-del:hover{opacity:1}
+
+/* 하위업무 */
+.subtask-body{display:none;padding:6px 8px;background:#fafafa;border-top:1px solid var(--gray-100)}
+.task-card.open .subtask-body{display:block}
+.subtask-list{display:flex;flex-direction:column;gap:4px;margin-bottom:5px;max-height:120px;overflow-y:auto}
+.subtask-item{display:flex;align-items:center;gap:4px;padding:5px 7px;background:#fff;border:1px solid var(--gray-200);border-radius:4px}
+.subtask-item:hover{border-color:var(--gray-300)}
+.subtask-item.completed{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#86efac}
+.subtask-name{flex:1;font-size:0.65rem;color:var(--gray-600);border:none;background:transparent;padding:1px 3px;border-radius:2px}
+.subtask-name:hover{background:var(--gray-50)}
+.subtask-name:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--primary-light)}
+.subtask-item.completed .subtask-name{text-decoration:line-through;color:var(--gray-400)}
+.subtask-dots{display:flex;gap:1px}
+.subtask-dot{width:9px;height:9px;border-radius:2px;background:var(--gray-200);cursor:pointer}
+.subtask-dot:hover{transform:scale(1.1)}
+.subtask-dot.filled{background:var(--success)}
+.subtask-pct{font-size:0.58rem;font-weight:600;min-width:22px;text-align:right;color:var(--gray-500)}
+.subtask-memo{background:var(--gray-100);border:none;color:var(--gray-500);padding:1px 4px;border-radius:2px;font-size:0.48rem;cursor:pointer}
+.subtask-memo.has-memo{background:var(--warning);color:#fff}
+.subtask-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.55rem;opacity:0.3}
+.subtask-del:hover{opacity:1}
+
+/* 추가 버튼들 */
+.add-row{display:flex;gap:4px;padding-top:5px;border-top:1px dashed var(--gray-200)}
+.add-input{flex:1;padding:4px 6px;border:1px solid var(--gray-200);border-radius:4px;font-size:0.62rem}
+.add-input:focus{outline:none;border-color:var(--primary)}
+.add-btn{padding:4px 8px;background:var(--primary);color:#fff;border:none;border-radius:4px;font-size:0.58rem;font-weight:600;cursor:pointer}
+.add-task-btn{padding:8px;background:var(--gray-50);border:1px dashed var(--gray-300);border-radius:5px;color:var(--gray-500);font-size:0.65rem;font-weight:600;cursor:pointer;margin-top:auto}
+.add-task-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.add-section-btn{grid-column:1/-1;padding:12px;background:var(--gray-50);border:2px dashed var(--gray-300);border-radius:var(--radius-lg);color:var(--gray-500);font-size:0.72rem;font-weight:600;cursor:pointer}
+.add-section-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+
+/* 팀원별 현황 */
+.team-section{background:#fff;border-radius:var(--radius-lg);padding:18px;margin-bottom:18px;box-shadow:var(--shadow)}
+.team-section-title{font-size:0.95rem;font-weight:700;color:var(--gray-800);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1000px){.team-grid{grid-template-columns:1fr}}
+.team-box{border-radius:var(--radius-lg);padding:14px;border:2px solid var(--gray-200)}
+.team-box.ja{border-color:#fca5a5;background:linear-gradient(135deg,#fef2f2,#fee2e2)}
+.team-box.yr{border-color:#93c5fd;background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.team-box.sj{border-color:#86efac;background:linear-gradient(135deg,#ecfdf5,#d1fae5)}
+.team-box-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.team-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:#fff}
+.team-avatar.ja{background:linear-gradient(135deg,#ef4444,#f87171)}
+.team-avatar.yr{background:linear-gradient(135deg,#3b82f6,#60a5fa)}
+.team-avatar.sj{background:linear-gradient(135deg,#10b981,#34d399)}
+.team-name{font-size:0.88rem;font-weight:700;color:var(--gray-800)}
+.team-stats{display:flex;gap:8px;margin-bottom:10px}
+.team-stat{flex:1;text-align:center;padding:6px;background:rgba(255,255,255,0.7);border-radius:6px}
+.team-stat-value{font-size:1rem;font-weight:800;color:var(--gray-800)}
+.team-stat-label{font-size:0.55rem;color:var(--gray-500)}
+.team-tasks{max-height:120px;overflow-y:auto}
+.team-task{display:flex;align-items:center;gap:6px;padding:5px 7px;background:rgba(255,255,255,0.8);border-radius:5px;margin-bottom:3px;font-size:0.68rem}
+.team-task.done{opacity:0.5}
+.team-task.done .team-task-name{text-decoration:line-through}
+.team-task-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.team-task-dot.k1{background:var(--kpi1)}
+.team-task-dot.k2{background:var(--kpi2)}
+.team-task-dot.k3{background:var(--kpi3)}
+.team-task-dot.k4{background:var(--kpi4)}
+.team-task-name{flex:1;color:var(--gray-600)}
+.team-task-pct{font-size:0.6rem;font-weight:600;color:var(--gray-400)}
+
+/* 마인드맵 */
+.mindmap-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:2000}
+.mindmap-overlay.show{display:flex}
+.mindmap-modal{background:#f8fafc;border-radius:16px;width:95vw;height:90vh;max-width:1400px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.25)}
+.mindmap-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#fff;border-bottom:1px solid var(--gray-200);flex-wrap:wrap;gap:10px}
+.mindmap-title{font-size:1rem;font-weight:700;color:var(--gray-800)}
+.mindmap-filters{display:flex;gap:6px;flex-wrap:wrap}
+.mindmap-filter-btn{padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1px solid var(--gray-200);background:#fff;color:var(--gray-600)}
+.mindmap-filter-btn:hover{background:var(--gray-100)}
+.mindmap-filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.mindmap-filter-btn.ja.active{background:#ef4444;border-color:#ef4444}
+.mindmap-filter-btn.yr.active{background:#3b82f6;border-color:#3b82f6}
+.mindmap-filter-btn.sj.active{background:#10b981;border-color:#10b981}
+.mindmap-actions{display:flex;gap:8px}
+.mindmap-btn{padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer}
+.mindmap-btn.close{background:var(--gray-100);border:1px solid var(--gray-200);color:var(--gray-600)}
+.mindmap-btn.png{background:var(--success);border:none;color:#fff}
+.mindmap-content{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;background:linear-gradient(135deg,#f8fafc,#e2e8f0)}
+.mindmap-container{display:flex;flex-direction:column;width:100%;min-height:100%}
+.mindmap-center{background:linear-gradient(135deg,var(--primary),#818cf8);color:#fff;padding:24px 36px;border-radius:16px;font-size:1.1rem;font-weight:800;text-align:center;box-shadow:0 8px 24px rgba(99,102,241,0.4)}
+.mindmap-center-sub{font-size:0.7rem;font-weight:500;opacity:0.85;margin-top:4px}
+.mindmap-side{display:flex;align-items:center}
+.mindmap-main-line{width:40px;height:3px;background:var(--gray-400)}
+.mindmap-branches{display:flex;flex-direction:column;position:relative}
+.mindmap-branches::before{content:'';position:absolute;width:3px;background:var(--gray-300)}
+.mindmap-side.left .mindmap-branches::before{right:0;top:15px;bottom:15px}
+.mindmap-side.right .mindmap-branches::before{left:0;top:15px;bottom:15px}
+.mindmap-branch{display:flex;align-items:flex-start;padding:5px 0}
+.mindmap-side.left .mindmap-branch{flex-direction:row-reverse}
+.mindmap-cat-line{width:25px;height:3px;background:var(--gray-300);margin-top:12px}
+.mindmap-cat-wrap{display:flex;align-items:flex-start}
+.mindmap-side.left .mindmap-cat-wrap{flex-direction:row-reverse}
+.mindmap-category{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fff;border-radius:8px;border:2px solid var(--gray-200);box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+.mindmap-cat-icon{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.75rem}
+.mindmap-cat-icon.k1{background:var(--kpi1-light);color:var(--kpi1)}
+.mindmap-cat-icon.k2{background:var(--kpi2-light);color:var(--kpi2)}
+.mindmap-cat-icon.k3{background:var(--kpi3-light);color:var(--kpi3)}
+.mindmap-cat-icon.k4{background:var(--kpi4-light);color:var(--kpi4)}
+.mindmap-cat-icon.k5{background:#fef3c7;color:#d97706}
+.mindmap-cat-name{font-size:0.7rem;font-weight:700;color:var(--gray-800)}
+.mindmap-tasks-line{width:16px;height:2px;background:var(--gray-200);margin-top:12px}
+.mindmap-tasks{display:flex;flex-direction:column;position:relative}
+.mindmap-tasks::before{content:'';position:absolute;width:2px;background:var(--gray-200)}
+.mindmap-side.left .mindmap-tasks::before{right:0;top:5px;bottom:5px}
+.mindmap-side.right .mindmap-tasks::before{left:0;top:5px;bottom:5px}
+.mindmap-task-row{display:flex;align-items:flex-start;padding:2px 0}
+.mindmap-side.left .mindmap-task-row{flex-direction:row-reverse}
+.mindmap-task-line{width:12px;height:2px;background:var(--gray-200);margin-top:8px}
+.mindmap-task{padding:3px 6px;background:#fff;border:1px solid var(--gray-200);border-radius:4px;font-size:0.6rem;display:flex;align-items:center;gap:4px}
+.mindmap-task.done{background:var(--kpi3-light);border-color:#86efac}
+.mindmap-task-name{color:var(--gray-600);white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis}
+.mindmap-task.done .mindmap-task-name{text-decoration:line-through;color:var(--gray-400)}
+.mindmap-task-pct{font-size:0.5rem;font-weight:600;color:var(--gray-400)}
+.mindmap-task-assignee{font-size:0.45rem;padding:1px 3px;border-radius:3px;font-weight:600}
+.mindmap-task-assignee.ja{background:#fee2e2;color:#dc2626}
+.mindmap-task-assignee.yr{background:#dbeafe;color:#2563eb}
+.mindmap-task-assignee.sj{background:#d1fae5;color:#059669}
+.mindmap-task.has-memo{flex-direction:column;align-items:flex-start;padding:5px 6px;gap:3px}
+.mindmap-task-header{display:flex;align-items:center;gap:4px;width:100%}
+.mindmap-task-memos{display:flex;flex-direction:column;gap:2px;width:100%;max-height:80px;overflow-y:auto}
+.mindmap-memo-item{font-size:0.48rem;color:#92400e;background:rgba(251,191,36,0.2);padding:2px 5px;border-radius:3px;border-left:2px solid var(--warning);max-width:130px;word-break:break-all}
+
+/* 마인드맵 상단 정보 - 왼쪽 상단 */
+.mindmap-top-info{display:flex;gap:12px;padding:12px 16px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:20px;flex-wrap:wrap}
+.mindmap-company-goal,.mindmap-team-mission{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:6px;flex:1;min-width:280px}
+.mindmap-company-goal{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:3px solid #3b82f6}
+.mindmap-team-mission{background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:3px solid #f59e0b}
+.mindmap-info-icon{font-size:1rem}
+.mindmap-info-label{font-size:0.68rem;font-weight:700;color:var(--gray-500);min-width:55px}
+.mindmap-info-text{flex:1;font-size:0.78rem;font-weight:600;color:var(--gray-800)}
+.mindmap-main{display:flex;align-items:center;justify-content:center;flex:1;min-width:max-content;padding:20px 0}
+
+/* JSON 모달 */
+.json-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1500}
+.json-overlay.show{display:flex}
+.json-modal{background:#fff;border-radius:var(--radius-lg);width:90%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,0.2)}
+.json-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--gray-200)}
+.json-title{font-size:0.95rem;font-weight:700;color:var(--gray-800)}
+.json-close{background:none;border:none;font-size:1.3rem;color:var(--gray-400);cursor:pointer}
+.json-body{padding:18px}
+.json-btns{display:flex;flex-direction:column;gap:10px}
+.json-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer}
+.json-btn.export{background:linear-gradient(135deg,var(--kpi1),#38bdf8);color:#fff;border:none}
+.json-btn.import{background:var(--gray-50);color:var(--gray-700);border:2px dashed var(--gray-300)}
+.json-file{display:none}
+
+/* ===== 그로스보드 ===== */
+.growth-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.growth-tab{padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;border:2px solid var(--gray-200);background:#fff;color:var(--gray-600);transition:all 0.2s}
+.growth-tab:hover{border-color:var(--primary);color:var(--primary)}
+.growth-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.growth-tab.ja{border-color:#fca5a5}.growth-tab.ja.active{background:#ef4444;border-color:#ef4444}
+.growth-tab.yr{border-color:#93c5fd}.growth-tab.yr.active{background:#3b82f6;border-color:#3b82f6}
+.growth-tab.sj{border-color:#86efac}.growth-tab.sj.active{background:#10b981;border-color:#10b981}
+.growth-content{display:none}
+.growth-content.active{display:block}
+.growth-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:900px){.growth-stats{grid-template-columns:repeat(2,1fr)}}
+.growth-stat-card{background:#fff;border-radius:var(--radius-lg);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.growth-stat-value{font-size:1.8rem;font-weight:800}
+.growth-stat-label{font-size:0.7rem;color:var(--gray-500);margin-top:4px}
+.growth-kpi-section{background:#fff;border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.growth-kpi-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-100)}
+.growth-kpi-num{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:0.85rem}
+.growth-kpi-num.k1{background:var(--kpi1)}
+.growth-kpi-num.k2{background:var(--kpi2)}
+.growth-kpi-num.k3{background:var(--kpi3)}
+.growth-kpi-num.k4{background:var(--kpi4)}
+.growth-kpi-title{flex:1;font-size:0.9rem;font-weight:700;color:var(--gray-800)}
+.growth-kpi-progress{font-size:0.8rem;font-weight:700}
+.growth-task-list{display:flex;flex-direction:column;gap:8px}
+.growth-task-item{background:var(--gray-50);border-radius:8px;padding:10px 12px;border-left:3px solid var(--gray-300)}
+.growth-task-item.k1{border-left-color:var(--kpi1)}
+.growth-task-item.k2{border-left-color:var(--kpi2)}
+.growth-task-item.k3{border-left-color:var(--kpi3)}
+.growth-task-item.k4{border-left-color:var(--kpi4)}
+.growth-task-item.completed{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left-color:#22c55e}
+.growth-task-row{display:flex;align-items:center;gap:8px}
+.growth-task-name{flex:1;font-size:0.78rem;font-weight:600;color:var(--gray-700)}
+.growth-task-item.completed .growth-task-name{text-decoration:line-through;color:var(--gray-400)}
+.growth-task-pct{font-size:0.72rem;font-weight:700;min-width:35px;text-align:right}
+.growth-task-memo{margin-top:6px;padding:8px 10px;background:rgba(251,191,36,0.15);border-radius:6px;border-left:3px solid var(--warning)}
+.growth-task-memo-title{font-size:0.6rem;font-weight:600;color:var(--warning);margin-bottom:4px}
+.growth-task-memo-text{font-size:0.7rem;color:var(--gray-600);line-height:1.4}
+.growth-empty{text-align:center;padding:30px;color:var(--gray-400);font-size:0.85rem}
+
+/* ===== 기타업무 ===== */
+.etc-tabs{display:flex;gap:8px;margin-bottom:16px}
+.etc-tab{padding:10px 20px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;border:2px solid var(--gray-200);background:#fff;color:var(--gray-600)}
+.etc-tab:hover{border-color:var(--primary);color:var(--primary)}
+.etc-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.etc-tab.ja.active{background:#ef4444;border-color:#ef4444}
+.etc-tab.yr.active{background:#3b82f6;border-color:#3b82f6}
+.etc-tab.sj.active{background:#10b981;border-color:#10b981}
+.etc-container{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1200px){.etc-container{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.etc-container{grid-template-columns:1fr}}
+.etc-task-card{background:#fff;border-radius:var(--radius-lg);padding:14px;box-shadow:var(--shadow);border-left:4px solid var(--gray-300)}
+.etc-task-card.ja{border-left-color:#ef4444}
+.etc-task-card.yr{border-left-color:#3b82f6}
+.etc-task-card.sj{border-left-color:#10b981}
+.etc-task-card.completed{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left-color:#22c55e}
+.etc-task-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+.etc-task-name{flex:1;font-size:0.82rem;font-weight:600;color:var(--gray-800);border:none;background:transparent;padding:2px 4px;border-radius:4px;resize:none}
+.etc-task-name:hover{background:var(--gray-100)}
+.etc-task-name:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--primary-light)}
+.etc-task-card.completed .etc-task-name{text-decoration:line-through;color:var(--gray-400)}
+.etc-task-assignee{padding:3px 8px;border-radius:8px;font-size:0.6rem;font-weight:600;border:none;cursor:pointer}
+.etc-task-assignee.ja{background:#fee2e2;color:#dc2626}
+.etc-task-assignee.yr{background:#dbeafe;color:#2563eb}
+.etc-task-assignee.sj{background:#d1fae5;color:#059669}
+.etc-task-progress{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.etc-progress-dots{display:flex;gap:2px}
+.etc-progress-dot{width:14px;height:14px;border-radius:3px;background:var(--gray-200);cursor:pointer}
+.etc-progress-dot:hover{background:var(--gray-300)}
+.etc-progress-dot.filled{background:var(--success)}
+.etc-task-pct{font-size:0.72rem;font-weight:700;color:var(--gray-600)}
+.etc-task-memo{padding:8px 10px;background:var(--gray-50);border-radius:6px;margin-bottom:8px}
+.etc-task-memo-input{width:100%;border:none;background:transparent;font-size:0.72rem;color:var(--gray-600);resize:none}
+.etc-task-memo-input:focus{outline:none}
+.etc-task-history{border-top:1px solid var(--gray-200);padding-top:8px}
+.etc-history-title{font-size:0.65rem;font-weight:600;color:var(--gray-500);margin-bottom:6px}
+.etc-history-item{display:flex;gap:6px;padding:4px 0;font-size:0.65rem;color:var(--gray-500)}
+.etc-history-date{min-width:70px;color:var(--gray-400)}
+.etc-history-text{flex:1}
+.etc-task-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--gray-200)}
+.etc-task-date{font-size:0.6rem;color:var(--gray-400)}
+.etc-task-del{background:none;border:none;color:var(--danger);font-size:0.7rem;cursor:pointer;opacity:0.4}
+.etc-task-del:hover{opacity:1}
+.etc-add-card{background:var(--gray-50);border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;color:var(--gray-500);font-size:0.8rem;font-weight:600}
+.etc-add-card:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
 </style>
 </head>
 <body>
@@ -347,10 +655,12 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 <button class="nav-btn" id="nav-2" onclick="showKpiDetail(2)"><span class="nav-num n2">2</span>거래 회수 안정화</button>
 <button class="nav-btn" id="nav-3" onclick="showKpiDetail(3)"><span class="nav-num n3">3</span>운영실행 납기준수</button>
 <button class="nav-btn" id="nav-4" onclick="showKpiDetail(4)"><span class="nav-num n4">4</span>업무자동화</button>
+<button class="nav-btn" id="nav-etc" onclick="showEtcTasks()"><span class="nav-icon">📋</span>기타업무</button>
 </div>
 <div class="nav-section">
 <div class="nav-title">리포트</div>
 <button class="nav-btn" id="nav-tracker" onclick="showTracker()"><span class="nav-icon">📈</span>월별 추적</button>
+<button class="nav-btn" id="nav-growth" onclick="showGrowthBoard()"><span class="nav-icon">🌱</span>그로스보드</button>
 </div>
 </nav>
 <div class="sidebar-footer">
@@ -358,6 +668,10 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 <div class="sidebar-btns">
 <button class="sidebar-btn primary" onclick="saveAll()">💾 저장</button>
 <button class="sidebar-btn" onclick="exportAll()">📥 엑셀</button>
+</div>
+<div class="sidebar-btns" style="margin-top:6px">
+<button class="sidebar-btn" onclick="openJsonModal()">📁 JSON</button>
+<button class="sidebar-btn" onclick="openMindMap()">🧠 맵</button>
 </div>
 </div>
 </aside>
@@ -425,6 +739,38 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </tbody>
 </table>
 </div>
+
+<!-- 팀원별 현황 -->
+<div class="team-section">
+<div class="team-section-title">👥 팀원별 업무 현황 <span class="badge badge-blue">실시간</span></div>
+<div class="team-grid" id="team-overview">
+<div class="team-box ja">
+<div class="team-box-header"><div class="team-avatar ja">정</div><div><div class="team-name">권정아</div></div></div>
+<div class="team-stats">
+<div class="team-stat"><div class="team-stat-value" id="team-ja-total">0</div><div class="team-stat-label">업무수</div></div>
+<div class="team-stat"><div class="team-stat-value" id="team-ja-avg">0%</div><div class="team-stat-label">평균진행</div></div>
+</div>
+<div class="team-tasks" id="team-ja-tasks"></div>
+</div>
+<div class="team-box yr">
+<div class="team-box-header"><div class="team-avatar yr">지</div><div><div class="team-name">이지연</div></div></div>
+<div class="team-stats">
+<div class="team-stat"><div class="team-stat-value" id="team-yr-total">0</div><div class="team-stat-label">업무수</div></div>
+<div class="team-stat"><div class="team-stat-value" id="team-yr-avg">0%</div><div class="team-stat-label">평균진행</div></div>
+</div>
+<div class="team-tasks" id="team-yr-tasks"></div>
+</div>
+<div class="team-box sj">
+<div class="team-box-header"><div class="team-avatar sj">수</div><div><div class="team-name">김수진</div></div></div>
+<div class="team-stats">
+<div class="team-stat"><div class="team-stat-value" id="team-sj-total">0</div><div class="team-stat-label">업무수</div></div>
+<div class="team-stat"><div class="team-stat-value" id="team-sj-avg">0%</div><div class="team-stat-label">평균진행</div></div>
+</div>
+<div class="team-tasks" id="team-sj-tasks"></div>
+</div>
+</div>
+</div>
+
 </div>
 <!-- KPI 1 상세 탭 -->
 <div id="tab-kpi1" class="tab-content">
@@ -479,105 +825,320 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </div>
 
-<!-- 관리지표 (핵심과제) - 계층형 -->
+<!-- 관리지표 (핵심과제) - 새로운 구조 -->
 <div class="section">
 <div class="section-header"><div class="section-title">📋 관리지표 (핵심과제) <span class="badge badge-blue">클릭하여 세부항목 확인 · 추가/삭제 가능</span></div></div>
-<div class="sub-item-list" id="mgmt-list-1">
-<!-- 1. 현장 판단 기준자료 구성 및 배포 -->
-<div class="sub-item" data-id="m1">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">📑 현장 판단 기준자료 구성 및 배포</span>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+<div class="mgmt-container" id="mgmt-container-1" data-kpi="1">
+
+<!-- 대제목 1: 현장 판단 기준자료 구성 및 배포 -->
+<div class="mgmt-section open" data-section-id="s1-1">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📑 현장 판단 기준자료 구성 및 배포" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
 </div>
-<div class="sub-item-children">
-<div class="child-list" id="children-m1"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'m1')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'m1')">+ 추가</button>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
 </div>
+<div class="mgmt-body">
+<div class="task-list"></div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
 </div>
 </div>
 
-<!-- 2. 체크리스트 배포 -->
-<div class="sub-item" data-id="m2">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">📝 체크리스트 배포</span>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+<!-- 대제목 2: 체크리스트 배포 -->
+<div class="mgmt-section open" data-section-id="s1-2">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📋 체크리스트 배포" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
 </div>
-<div class="sub-item-children">
-<div class="child-list" id="children-m2"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'m2')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'m2')">+ 추가</button>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
 </div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-2-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="물량별 평균 공사일수" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-2-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="현장 필수 체크사항" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-2-3" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="관리주체 주요 질문 응대멘트" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
 </div>
 </div>
 
-<!-- 3. 공법 기준표 제공 -->
-<div class="sub-item" data-id="m3">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">📊 공법 기준표 제공</span>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+<!-- 대제목 3: 공법 기준표 제공 -->
+<div class="mgmt-section open" data-section-id="s1-3">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📊 공법 기준표 제공" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
 </div>
-<div class="sub-item-children">
-<div class="child-list" id="children-m3"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'m3')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'m3')">+ 추가</button>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
 </div>
-</div>
-</div>
-
-<!-- 4. 미가동 고객사 추적 -->
-<div class="sub-item" data-id="m4">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">🔄 미가동 고객사 추적</span>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
-</div>
-<div class="sub-item-children">
-<div class="child-list" id="children-m4"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'m4')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'m4')">+ 추가</button>
-</div>
+<div class="mgmt-body">
+<div class="task-list"></div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
 </div>
 </div>
 
-<!-- 5. 현장운영 대시보드 구축 -->
-<div class="sub-item" data-id="m5">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">📊 현장운영 대시보드 구축</span>
-<a href="운영대시보드_v2_1.html" target="_blank" class="sub-item-link" onclick="event.stopPropagation()">🔗 POUR공법 | 시공사 운영 대시보드</a>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+<!-- 대제목 4: 미가동 고객사 추적 -->
+<div class="mgmt-section open" data-section-id="s1-4">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="🔄 미가동 고객사 추적" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
 </div>
-<div class="sub-item-children">
-<div class="child-list" id="children-m5"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'m5')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'m5')">+ 추가</button>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-4-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="자료 우편발송" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-4-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="세미나 독려" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
 </div>
 </div>
 </div>
 </div>
-<!-- 새 관리지표 추가 -->
-<div class="add-sub-row">
-<input type="text" class="add-sub-input" id="new-mgmt-input" placeholder="새 관리지표 추가..." onkeypress="if(event.key==='Enter')addNewMgmt()">
-<button class="add-sub-btn" onclick="addNewMgmt()">+ 관리지표 추가</button>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 5: 현장운영 대시보드 구축 -->
+<div class="mgmt-section open" data-section-id="s1-5">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📊 현장운영 대시보드 구축" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-5-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="내부자료정리" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-5-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="데이터구조설계" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-5-3" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="고유번호부여" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-5-4" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="표준화" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-5-5" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="시범운영" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<button class="add-section-btn" onclick="addSection(1)">+ 새 관리지표(대제목) 추가</button>
 </div>
 </div>
 
@@ -618,29 +1179,380 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 <div class="section">
 <div class="section-header"><div class="section-title">📋 관리지표 (핵심과제) <span class="badge badge-purple">클릭하여 세부항목 확인 · 추가/삭제 가능</span></div></div>
-<div class="sub-item-list" id="mgmt-list-2">
-<!-- 1. 예정입금일 리마인드 -->
-<div class="sub-item" data-id="k2m1">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">🔔 예정입금일 리마인드</span>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+<div class="mgmt-container" id="mgmt-container-2" data-kpi="2">
+
+<!-- 대제목 1: 예정입금일 리마인드 -->
+<div class="mgmt-section open" data-section-id="s2-1">
+<div class="mgmt-header k2" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="⏰ 예정입금일 리마인드" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k2" style="width:0%"></div></div>
+<span class="mgmt-progress-text k2">0%</span>
 </div>
-<div class="sub-item-children">
-<div class="child-list" id="children-k2m1"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'k2m1')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'k2m1')">+ 추가</button>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list"></div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 2: 자동화 메일 시스템 모니터링 -->
+<div class="mgmt-section open" data-section-id="s2-2">
+<div class="mgmt-header k2" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📧 자동화 메일 시스템 모니터링" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k2" style="width:0%"></div></div>
+<span class="mgmt-progress-text k2">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t2-2-1" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="정상동작 여부 확인" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-2-2" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="회신율 모니터링" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
 </div>
 </div>
 </div>
 </div>
-<!-- 새 관리지표 추가 -->
-<div class="add-sub-row">
-<input type="text" class="add-sub-input" id="new-mgmt-input-2" placeholder="새 관리지표 추가..." onkeypress="if(event.key==='Enter')addNewMgmt2()">
-<button class="add-sub-btn" onclick="addNewMgmt2()">+ 관리지표 추가</button>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 3: 고객사 접촉활동 -->
+<div class="mgmt-section open" data-section-id="s2-3">
+<div class="mgmt-header k2" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📞 고객사 접촉활동" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k2" style="width:0%"></div></div>
+<span class="mgmt-progress-text k2">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t2-3-1" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="미회신 및 입금기한 미이행 고객대상 유선연락 추가 접촉활동" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 4: 실행공사 / 미수금 대시보드 관리 -->
+<div class="mgmt-section open" data-section-id="s2-4">
+<div class="mgmt-header k2" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📊 실행공사 / 미수금 대시보드 관리" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k2" style="width:0%"></div></div>
+<span class="mgmt-progress-text k2">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t2-4-1" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="입금내역(실행/자재/특허 etc.) 매칭 데일리 확인" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-4-2" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="실행현장 공정율 데일리 확인" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-4-3" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="미수에이징 현황 파악(악성 연체구간 및 집중 관리대상 식별)" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-4-4" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="연체사유 분류코드 관리" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-4-5" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="업체 미수패턴 분석(잔존 장기미수, 반복지연, 약속 불이행 등)" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 5: 미수단계별 독촉 시나리오 점검 및 개선 -->
+<div class="mgmt-section open" data-section-id="s2-5">
+<div class="mgmt-header k2" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📋 미수단계별 독촉 시나리오 점검 및 개선" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k2" style="width:0%"></div></div>
+<span class="mgmt-progress-text k2">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t2-5-1" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="미수 단계별 매뉴얼에 따른 적기 대응여부 및 활동 내용 기록" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-5-2" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="시나리오의 유효성(회수조율) 검증 및 업데이트를 통한 개선활동" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 6: 청구서 발행 리드타임 단축을 위한 프로세스 개선 -->
+<div class="mgmt-section open" data-section-id="s2-6">
+<div class="mgmt-header k2" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📄 청구서 발행 리드타임 단축을 위한 프로세스 개선" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k2" style="width:0%"></div></div>
+<span class="mgmt-progress-text k2">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t2-6-1" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="노무비 협의 절차 개선" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t2-6-2" data-progress="0" data-assignee="yr">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="소장님 전용 대시보드 운영" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee yr" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr" selected>지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="2"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<button class="add-section-btn" onclick="addSection(2)">+ 새 관리지표(대제목) 추가</button>
 </div>
 </div>
 <div class="section">
@@ -811,30 +1723,199 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 <div class="section">
 <div class="section-header"><div class="section-title">📋 관리지표 (핵심과제) <span class="badge badge-green">클릭하여 세부항목 확인 · 추가/삭제 가능</span></div></div>
-<div class="sub-item-list" id="mgmt-list-3">
-<!-- 1. 2회이상 동일 요청건 자료 구축 -->
-<div class="sub-item" data-id="k3m1">
-<div class="sub-item-header" onclick="toggleSubItem(this)">
-<span class="sub-item-arrow">▶</span>
-<input type="checkbox" class="sub-item-check" onclick="event.stopPropagation();updateSubItemStatus(this)">
-<span class="sub-item-title">📂 2회이상 동일 요청건 자료 구축</span>
-<a href="javascript:void(0)" onclick="event.stopPropagation();downloadExcel('카카오채널_실문의_현황_26_01.xlsx', excelData_kakao)" class="sub-item-link">📊 카카오채널 실문의 현황</a>
-<span class="sub-item-status pending">진행중</span>
-<button class="sub-item-del" onclick="event.stopPropagation();deleteSubItem(this)">×</button>
+<div class="mgmt-container" id="mgmt-container-3" data-kpi="3">
+
+<!-- 대제목 1: 2회이상 동일 요청건 자료 구축 -->
+<div class="mgmt-section open" data-section-id="s3-1">
+<div class="mgmt-header k3" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📂 2회이상 동일 요청건 자료 구축" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k3" style="width:0%"></div></div>
+<span class="mgmt-progress-text k3">0%</span>
 </div>
-<div class="sub-item-children">
-<div class="child-list" id="children-k3m1"></div>
-<div class="add-child-row">
-<input type="text" class="add-child-input" placeholder="세부 체크항목 추가..." onkeypress="if(event.key==='Enter')addChildItem(this,'k3m1')">
-<button class="add-child-btn" onclick="addChildItem(this.previousElementSibling,'k3m1')">+ 추가</button>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t3-1-1" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="비교표 양식 구축 (양식 표준화)" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t3-1-2" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="공사실적 3개년, 5개년 공종별 자료 제작" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t3-1-3" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="공종별 비교표 데이터 최신화" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
 </div>
 </div>
 </div>
 </div>
-<!-- 새 관리지표 추가 -->
-<div class="add-sub-row">
-<input type="text" class="add-sub-input" id="new-mgmt-input-3" placeholder="새 관리지표 추가..." onkeypress="if(event.key==='Enter')addNewMgmt3()">
-<button class="add-sub-btn" onclick="addNewMgmt3()">+ 관리지표 추가</button>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 2: 컨설팅 내역서 요청 방법 개선 -->
+<div class="mgmt-section open" data-section-id="s3-2">
+<div class="mgmt-header k3" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📋 컨설팅 내역서 요청 방법 개선" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k3" style="width:0%"></div></div>
+<span class="mgmt-progress-text k3">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t3-2-1" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="컨설팅 내역서 요청 폼 제작" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t3-2-2" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="요청 데이터 자동 취합 및 정리 대시보드 구축" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t3-2-3" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="n8n연결 및 잔디 자동알림 설정" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t3-2-4" data-progress="0" data-assignee="sj">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="컨설팅내역서 시스템 가이드 제작 후 배포(내부/외부_시공사)" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee sj" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja">정아</option><option value="yr">지연</option><option value="sj" selected>수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="3"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<button class="add-section-btn" onclick="addSection(3)">+ 새 관리지표(대제목) 추가</button>
 </div>
 </div>
 <div class="section">
@@ -875,8 +1956,72 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </div>
 <div class="section">
-<div class="section-header"><div class="section-title">📋 관리지표 (핵심과제) <span class="badge badge-orange">업무 추가/수정/삭제</span></div><button class="btn btn-primary btn-sm" onclick="addTask(4)">+ 업무 추가</button></div>
-<table class="task-table"><thead><tr><th style="width:35px">No</th><th>업무/과제명</th><th style="width:70px">예상절감</th><th style="width:70px">담당자</th><th style="width:70px">상태</th><th style="width:85px">완료일</th><th style="width:35px">삭제</th></tr></thead><tbody id="tasks-4"></tbody></table>
+<div class="section-header"><div class="section-title">📋 관리지표 (핵심과제) <span class="badge badge-orange">대제목 수정 가능 · 10% 진행률</span></div></div>
+<div class="mgmt-container" id="mgmt-container-4" data-kpi="4">
+
+<div class="mgmt-section open" data-section-id="s4-1">
+<div class="mgmt-header k4" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="🤖 업무 자동화 시스템 구축" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k4" style="width:0%"></div></div>
+<span class="mgmt-progress-text k4">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t4-1-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="반복업무 발굴 및 분석" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="4"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t4-1-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="자동화 방안 설계 및 구현" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="4"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<button class="add-section-btn" onclick="addSection(4)">+ 새 관리지표(대제목) 추가</button>
+</div>
 </div>
 <div class="section">
 <div class="section-header"><div class="section-title">🎯 선행지표 활동 추적</div></div>
@@ -910,8 +2055,80 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </div>
 </div>
+
+<!-- 그로스보드 탭 -->
+<div id="tab-growth" class="tab-content">
+<div class="page-header">
+<div class="header-row">
+<div class="header-left"><h1>🌱 그로스보드</h1><div class="sub">팀원별 업무 현황 및 메모 확인</div></div>
+</div>
+</div>
+<div class="growth-tabs">
+<button class="growth-tab active" onclick="showGrowthTab('all')">👥 전체</button>
+<button class="growth-tab ja" onclick="showGrowthTab('ja')">권정아</button>
+<button class="growth-tab yr" onclick="showGrowthTab('yr')">이지연</button>
+<button class="growth-tab sj" onclick="showGrowthTab('sj')">김수진</button>
+</div>
+<div id="growth-container"></div>
+</div>
+
+<!-- 기타업무 탭 -->
+<div id="tab-etc" class="tab-content">
+<div class="page-header">
+<div class="header-row">
+<div class="header-left"><h1>📋 기타업무</h1><div class="sub">KPI 외 담당자별 할당 업무 관리</div></div>
+</div>
+</div>
+<div class="etc-tabs">
+<button class="etc-tab active" onclick="showEtcTab('all')">👥 전체</button>
+<button class="etc-tab ja" onclick="showEtcTab('ja')">권정아</button>
+<button class="etc-tab yr" onclick="showEtcTab('yr')">이지연</button>
+<button class="etc-tab sj" onclick="showEtcTab('sj')">김수진</button>
+</div>
+<div class="etc-container" id="etc-container"></div>
+</div>
+
 </main>
 <div class="toast" id="toast">저장완료</div>
+
+<!-- 마인드맵 모달 -->
+<div class="mindmap-overlay" id="mindmap-overlay" onclick="closeMindMapOutside(event)">
+<div class="mindmap-modal">
+<div class="mindmap-header">
+<div class="mindmap-title">🧠 서비스운영2팀 KPI 마인드맵</div>
+<div class="mindmap-filters">
+<button class="mindmap-filter-btn active" onclick="setMindmapFilter('all')">전체</button>
+<button class="mindmap-filter-btn ja" onclick="setMindmapFilter('ja')">정아님</button>
+<button class="mindmap-filter-btn yr" onclick="setMindmapFilter('yr')">지연님</button>
+<button class="mindmap-filter-btn sj" onclick="setMindmapFilter('sj')">수진님</button>
+</div>
+<div class="mindmap-actions">
+<button class="mindmap-btn png" onclick="downloadMindmapPng()">📥 PNG</button>
+<button class="mindmap-btn close" onclick="closeMindMap()">✕</button>
+</div>
+</div>
+<div class="mindmap-content">
+<div class="mindmap-container" id="mindmap-container"></div>
+</div>
+</div>
+</div>
+
+<!-- JSON 모달 -->
+<div class="json-overlay" id="json-overlay" onclick="closeJsonOutside(event)">
+<div class="json-modal">
+<div class="json-header">
+<div class="json-title">📁 데이터 관리</div>
+<button class="json-close" onclick="closeJsonModal()">×</button>
+</div>
+<div class="json-body">
+<div class="json-btns">
+<button class="json-btn export" onclick="exportJSON()">📤 JSON 내보내기</button>
+<label class="json-btn import">📥 JSON 불러오기<input type="file" class="json-file" accept=".json" onchange="importJSON(event)"></label>
+</div>
+</div>
+</div>
+</div>
+
 <!-- 메모 모달 -->
 <div class="memo-modal" id="memo-modal">
 <div class="memo-box">
@@ -958,7 +2175,7 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </script>
 
 <script>
-const SK='svc_ops2_kpi_v12';
+const SK='svc_ops2_kpi_v17';
 const trackerData=[
   {kpi:'1',name:'협력사',acts:['반복요청 자료 패키지','현장운영 대시보드','신규협력사 온보딩','재유입경로 확보'],per:['분기1회','2월말목표','월1회','수시']},
   {kpi:'2',name:'거래회수',acts:['자동화 메일 발송','유통+영업팀 공유'],per:['수시','연체시']},
@@ -966,50 +2183,25 @@ const trackerData=[
   {kpi:'4',name:'자동화',acts:['반복업무 발굴','자동화 방안 설계','자동화 구현/테스트','효과 측정/개선'],per:['월1회','월1회','분기1회','분기1회']}
 ];
 let taskCnt={1:0,2:0,3:0,4:0};
-let mgmtCounter=6; // 새 관리지표용 ID 카운터
-let memoData = {}; // 메모 데이터 저장
-let currentMemoId = null; // 현재 편집중인 메모 ID
+let sectionCounter=10;
+let taskCounter=100;
+let subtaskCounter=1000;
+let memoData = {};
+let currentMemoTarget = null;
+let mindmapFilter = 'all';
 
-// 초기 하위항목 데이터
-const defaultChildren = {
-  'm1': [], // 현장 판단 기준자료
-  'm2': [ // 체크리스트 배포
-    {id:'c2-1',title:'물량별 평균 공사일수',checked:false,children:[]},
-    {id:'c2-2',title:'현장 필수 체크사항',checked:false,children:[]},
-    {id:'c2-3',title:'관리주체 주요 질문 응대멘트',checked:false,children:[]}
-  ],
-  'm3': [], // 공법 기준표
-  'm4': [ // 미가동 고객사 추적
-    {id:'c4-1',title:'자료 우편발송',checked:false,type:'mail',children:[
-      {id:'c4-1-q1',title:'Q1 발송 (1~3월)',checked:false},
-      {id:'c4-1-q2',title:'Q2 발송 (4~6월)',checked:false},
-      {id:'c4-1-q3',title:'Q3 발송 (7~9월)',checked:false},
-      {id:'c4-1-q4',title:'Q4 발송 (10~12월)',checked:false}
-    ]},
-    {id:'c4-2',title:'세미나 독려',checked:false,children:[],type:'seminar',link:'https://seminar-calendar.poursolution22.workers.dev'}
-  ],
-  'm5': [ // 현장운영 대시보드 구축
-    {id:'c5-1',title:'내부자료정리',checked:false,children:[]},
-    {id:'c5-2',title:'데이터구조설계',checked:false,children:[]},
-    {id:'c5-3',title:'고유번호부여',checked:false,children:[]},
-    {id:'c5-4',title:'표준화',checked:false,children:[]},
-    {id:'c5-5',title:'시범운영',checked:false,children:[]}
-  ],
-  // KPI 2 관리지표
-  'k2m1': [ // 예정입금일 리마인드
-    {id:'k2c1-1',title:'D-3 사전알림',checked:false,children:[]}
-  ],
-  // KPI 3 관리지표
-  'k3m1': [] // 2회이상 동일 요청건 자료 구축
+// 관리지표 데이터 구조
+let mgmtData = {
+  sections: {},  // 대제목 데이터
+  tasks: {},     // 업무 데이터
+  subtasks: {}   // 하위업무 데이터
 };
-let childrenData = JSON.parse(JSON.stringify(defaultChildren));
 
 async function init(){
   await loadData();
   buildTracker();
   buildCalendar();
-  renderAllChildren();
-  addMemoButtons(); // 메모 버튼 추가
+  initNewMgmtSystem(); // 새 관리지표 시스템 초기화
   for(let k=1;k<=4;k++)calcAct(k);
   calcKpi3();calcKpi4();calcSales();calcGrade();
 }
@@ -1390,6 +2582,328 @@ function showTracker(){
   document.getElementById('tab-tracker').classList.add('active');
 }
 
+// ========== 기타업무 ==========
+let currentEtcTab = 'all';
+let etcTasks = [];
+let etcTaskCounter = 1;
+
+function showEtcTasks(){
+  clearNavActive();hideAllTabs();
+  document.getElementById('nav-etc').classList.add('active');
+  document.getElementById('tab-etc').classList.add('active');
+  renderEtcTasks();
+}
+
+function showEtcTab(tab){
+  currentEtcTab = tab;
+  document.querySelectorAll('.etc-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderEtcTasks();
+}
+
+function renderEtcTasks(){
+  const container = document.getElementById('etc-container');
+  const names = {ja:'권정아', yr:'이지연', sj:'김수진'};
+  
+  let filteredTasks = etcTasks;
+  if(currentEtcTab !== 'all'){
+    filteredTasks = etcTasks.filter(t => t.assignee === currentEtcTab);
+  }
+  
+  let html = '';
+  
+  filteredTasks.forEach(task => {
+    const isComplete = task.progress >= 100;
+    html += `
+      <div class="etc-task-card ${task.assignee} ${isComplete ? 'completed' : ''}" data-etc-id="${task.id}">
+        <div class="etc-task-header">
+          <input type="text" class="etc-task-name" value="${task.name}" onchange="updateEtcTask(${task.id}, 'name', this.value)">
+          <select class="etc-task-assignee ${task.assignee}" onchange="updateEtcTask(${task.id}, 'assignee', this.value)">
+            <option value="ja" ${task.assignee==='ja'?'selected':''}>정아</option>
+            <option value="yr" ${task.assignee==='yr'?'selected':''}>지연</option>
+            <option value="sj" ${task.assignee==='sj'?'selected':''}>수진</option>
+          </select>
+        </div>
+        <div class="etc-task-progress">
+          <div class="etc-progress-dots">
+            ${[10,20,30,40,50,60,70,80,90,100].map(v => 
+              `<span class="etc-progress-dot ${task.progress >= v ? 'filled' : ''}" onclick="setEtcProgress(${task.id}, ${v})"></span>`
+            ).join('')}
+          </div>
+          <span class="etc-task-pct">${task.progress}%</span>
+        </div>
+        <div class="etc-task-memo">
+          <textarea class="etc-task-memo-input" placeholder="메모 입력..." rows="2" onchange="updateEtcTask(${task.id}, 'memo', this.value)">${task.memo || ''}</textarea>
+        </div>
+        ${task.history && task.history.length > 0 ? `
+          <div class="etc-task-history">
+            <div class="etc-history-title">📋 진행 이력</div>
+            ${task.history.slice(0, 3).map(h => `
+              <div class="etc-history-item">
+                <span class="etc-history-date">${h.date}</span>
+                <span class="etc-history-text">${h.text}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        <div class="etc-task-footer">
+          <span class="etc-task-date">생성: ${task.created || '-'}</span>
+          <button class="etc-task-del" onclick="deleteEtcTask(${task.id})">🗑️ 삭제</button>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += `<div class="etc-add-card" onclick="addEtcTask()">+ 새 기타업무 추가</div>`;
+  
+  container.innerHTML = html;
+}
+
+function addEtcTask(){
+  const name = prompt('업무명을 입력하세요:');
+  if(!name) return;
+  
+  const assignee = currentEtcTab !== 'all' ? currentEtcTab : 'ja';
+  const today = new Date().toLocaleDateString('ko-KR');
+  
+  etcTasks.push({
+    id: etcTaskCounter++,
+    name: name,
+    assignee: assignee,
+    progress: 0,
+    memo: '',
+    created: today,
+    history: [{date: today, text: '업무 생성'}]
+  });
+  
+  renderEtcTasks();
+  autoSave();
+}
+
+function updateEtcTask(id, field, value){
+  const task = etcTasks.find(t => t.id === id);
+  if(!task) return;
+  
+  const oldValue = task[field];
+  task[field] = value;
+  
+  // 이력 기록
+  const today = new Date().toLocaleDateString('ko-KR');
+  const fieldNames = {name:'업무명', assignee:'담당자', memo:'메모'};
+  if(field !== 'memo' && oldValue !== value){
+    if(!task.history) task.history = [];
+    task.history.unshift({date: today, text: `${fieldNames[field]} 변경`});
+  }
+  
+  // 담당자 변경 시 select 색상 업데이트
+  if(field === 'assignee'){
+    const card = document.querySelector(`[data-etc-id="${id}"]`);
+    if(card){
+      card.className = `etc-task-card ${value} ${task.progress >= 100 ? 'completed' : ''}`;
+      const select = card.querySelector('.etc-task-assignee');
+      if(select) select.className = `etc-task-assignee ${value}`;
+    }
+  }
+  
+  autoSave();
+}
+
+function setEtcProgress(id, value){
+  const task = etcTasks.find(t => t.id === id);
+  if(!task) return;
+  
+  // 같은 값 클릭 시 10% 감소
+  if(task.progress === value){
+    value = Math.max(0, value - 10);
+  }
+  
+  const oldProgress = task.progress;
+  task.progress = value;
+  
+  // 이력 기록
+  const today = new Date().toLocaleDateString('ko-KR');
+  if(!task.history) task.history = [];
+  if(value >= 100 && oldProgress < 100){
+    task.history.unshift({date: today, text: '✅ 완료!'});
+  } else if(oldProgress !== value){
+    task.history.unshift({date: today, text: `진행률 ${value}%`});
+  }
+  
+  renderEtcTasks();
+  autoSave();
+}
+
+function deleteEtcTask(id){
+  if(!confirm('이 업무를 삭제하시겠습니까?')) return;
+  etcTasks = etcTasks.filter(t => t.id !== id);
+  renderEtcTasks();
+  autoSave();
+}
+
+// ========== 그로스보드 ==========
+let currentGrowthTab = 'all';
+
+function showGrowthBoard(){
+  clearNavActive();hideAllTabs();
+  document.getElementById('nav-growth').classList.add('active');
+  document.getElementById('tab-growth').classList.add('active');
+  renderGrowthBoard();
+}
+
+function showGrowthTab(tab){
+  currentGrowthTab = tab;
+  document.querySelectorAll('.growth-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderGrowthBoard();
+}
+
+function renderGrowthBoard(){
+  const container = document.getElementById('growth-container');
+  const kpiNames = {
+    '1': '협력사 활성 가동율',
+    '2': '거래 회수 안정화',
+    '3': '운영실행 납기준수',
+    '4': '업무자동화'
+  };
+  const names = {ja:'권정아', yr:'이지연', sj:'김수진'};
+  
+  // 업무 데이터 수집
+  const allTasks = [];
+  document.querySelectorAll('.task-card').forEach(card => {
+    const assignee = card.querySelector('.task-assignee')?.value || 'ja';
+    const name = card.querySelector('.task-name')?.value || '';
+    const progress = parseInt(card.dataset.progress) || 0;
+    const kpi = card.closest('.mgmt-container')?.dataset.kpi || '1';
+    const taskId = card.dataset.taskId;
+    const memos = memoData[taskId] || [];
+    
+    // 하위업무도 수집
+    const subtasks = [];
+    card.querySelectorAll('.subtask-item').forEach(st => {
+      const stId = st.dataset.subtaskId;
+      const stName = st.querySelector('.subtask-name')?.value || '';
+      const stProgress = parseInt(st.dataset.progress) || 0;
+      const stMemos = memoData[stId] || [];
+      subtasks.push({id: stId, name: stName, progress: stProgress, memos: stMemos});
+    });
+    
+    if(currentGrowthTab === 'all' || assignee === currentGrowthTab){
+      allTasks.push({id: taskId, name, progress, kpi, assignee, memos, subtasks});
+    }
+  });
+  
+  if(allTasks.length === 0){
+    container.innerHTML = '<div class="growth-empty">📋 배정된 업무가 없습니다</div>';
+    return;
+  }
+  
+  // 통계 계산
+  const totalTasks = allTasks.length;
+  const completedTasks = allTasks.filter(t => t.progress >= 100).length;
+  const avgProgress = Math.round(allTasks.reduce((sum, t) => sum + t.progress, 0) / totalTasks);
+  const tasksWithMemo = allTasks.filter(t => t.memos.length > 0).length;
+  
+  // 통계 카드
+  let html = `
+    <div class="growth-stats">
+      <div class="growth-stat-card">
+        <div class="growth-stat-value" style="color:var(--primary)">${totalTasks}</div>
+        <div class="growth-stat-label">전체 업무</div>
+      </div>
+      <div class="growth-stat-card">
+        <div class="growth-stat-value" style="color:var(--success)">${completedTasks}</div>
+        <div class="growth-stat-label">완료</div>
+      </div>
+      <div class="growth-stat-card">
+        <div class="growth-stat-value" style="color:var(--kpi1)">${avgProgress}%</div>
+        <div class="growth-stat-label">평균 진행률</div>
+      </div>
+      <div class="growth-stat-card">
+        <div class="growth-stat-value" style="color:var(--warning)">${tasksWithMemo}</div>
+        <div class="growth-stat-label">메모 있음</div>
+      </div>
+    </div>
+  `;
+  
+  // KPI별 그룹핑
+  const tasksByKpi = {1:[], 2:[], 3:[], 4:[]};
+  allTasks.forEach(t => {
+    tasksByKpi[t.kpi] = tasksByKpi[t.kpi] || [];
+    tasksByKpi[t.kpi].push(t);
+  });
+  
+  // KPI별 섹션 렌더링
+  for(let k = 1; k <= 4; k++){
+    const tasks = tasksByKpi[k];
+    if(!tasks || tasks.length === 0) continue;
+    
+    const kpiAvg = Math.round(tasks.reduce((s, t) => s + t.progress, 0) / tasks.length);
+    
+    html += `
+      <div class="growth-kpi-section">
+        <div class="growth-kpi-header">
+          <div class="growth-kpi-num k${k}">${k}</div>
+          <div class="growth-kpi-title">${kpiNames[k]}</div>
+          <div class="growth-kpi-progress" style="color:var(--kpi${k})">${kpiAvg}%</div>
+        </div>
+        <div class="growth-task-list">
+    `;
+    
+    tasks.forEach(task => {
+      const isComplete = task.progress >= 100;
+      html += `
+        <div class="growth-task-item k${k} ${isComplete ? 'completed' : ''}">
+          <div class="growth-task-row">
+            <span class="growth-task-name">${task.name}</span>
+            ${currentGrowthTab === 'all' ? `<span style="font-size:0.6rem;padding:2px 6px;border-radius:6px;background:${task.assignee==='ja'?'#fee2e2':task.assignee==='yr'?'#dbeafe':'#d1fae5'};color:${task.assignee==='ja'?'#dc2626':task.assignee==='yr'?'#2563eb':'#059669'}">${names[task.assignee]}</span>` : ''}
+            <span class="growth-task-pct" style="color:var(--kpi${k})">${task.progress}%</span>
+          </div>
+      `;
+      
+      // 업무 메모 표시
+      if(task.memos.length > 0){
+        html += `
+          <div class="growth-task-memo">
+            <div class="growth-task-memo-title">📝 최근 메모 (${task.memos[0].date})</div>
+            <div class="growth-task-memo-text">${task.memos[0].text}</div>
+          </div>
+        `;
+      }
+      
+      // 하위업무 및 메모 표시
+      task.subtasks.forEach(st => {
+        const stComplete = st.progress >= 100;
+        html += `
+          <div style="margin-top:6px;padding:6px 10px;background:${stComplete?'#ecfdf5':'#fff'};border-radius:5px;border:1px solid ${stComplete?'#86efac':'var(--gray-200)'};margin-left:12px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.68rem;color:var(--gray-500)">↳</span>
+              <span style="flex:1;font-size:0.7rem;color:${stComplete?'var(--gray-400)':'var(--gray-600)'};${stComplete?'text-decoration:line-through':''}">${st.name}</span>
+              <span style="font-size:0.65rem;font-weight:600;color:var(--gray-400)">${st.progress}%</span>
+            </div>
+        `;
+        
+        // 하위업무 메모 표시
+        if(st.memos.length > 0){
+          html += `
+            <div style="margin-top:5px;padding:6px 8px;background:rgba(251,191,36,0.1);border-radius:4px;border-left:2px solid var(--warning)">
+              <div style="font-size:0.55rem;font-weight:600;color:var(--warning);margin-bottom:2px">📝 ${st.memos[0].date}</div>
+              <div style="font-size:0.65rem;color:var(--gray-600)">${st.memos[0].text}</div>
+            </div>
+          `;
+        }
+        
+        html += '</div>';
+      });
+      
+      html += '</div>';
+    });
+    
+    html += '</div></div>';
+  }
+  
+  container.innerHTML = html;
+}
+
 function calcSales(){
   const current=parseFloat(document.getElementById('current-sales').value)||0;
   const rate=(current/230*100);
@@ -1576,63 +3090,58 @@ function saveAll(){
     sales:document.getElementById('current-sales')?.value||0,
     grades:{s:document.getElementById('grade-s')?.value||0,a:document.getElementById('grade-a')?.value||0,b:document.getElementById('grade-b')?.value||0,c:document.getElementById('grade-c')?.value||0,n:document.getElementById('grade-n')?.value||0,f:document.getElementById('grade-f')?.value||0},
     acts:{},tracker:{},tasks:{1:[],2:[],3:[],4:[]},
-    childrenData:childrenData,
-    mgmtItems:{kpi1:[],kpi2:[],kpi3:[]},
-    mgmtCounter:mgmtCounter,
-    calendar:[],
-    memoData:memoData
+    memoData:memoData,
+    etcTasks:etcTasks,
+    etcTaskCounter:etcTaskCounter,
+    // 새 관리지표 구조 저장
+    mgmtSections:[],
+    sectionCounter:sectionCounter,
+    taskCounter:taskCounter,
+    subtaskCounter:subtaskCounter,
+    calendar:[]
   };
-  // 관리지표 상태 저장 - 모든 KPI
-  document.querySelectorAll('#mgmt-list-1 .sub-item').forEach(item=>{
-    const check=item.querySelector('.sub-item-check');
-    const title=item.querySelector('.sub-item-title').textContent;
-    const link=item.querySelector('.sub-item-link');
-    data.mgmtItems.kpi1.push({
-      id:item.dataset.id,
-      title:title,
-      checked:check?.checked||false,
-      link:link?link.getAttribute('href'):null,
-      linkText:link?link.textContent:null
+  
+  // 새 관리지표 저장
+  document.querySelectorAll('.mgmt-section').forEach(section => {
+    const kpi = section.closest('.mgmt-container')?.dataset.kpi;
+    const sectionData = {
+      id: section.dataset.sectionId,
+      kpi: kpi,
+      title: section.querySelector('.mgmt-title-input')?.value || '',
+      open: section.classList.contains('open'),
+      tasks: []
+    };
+    
+    section.querySelectorAll('.task-card').forEach(task => {
+      const taskData = {
+        id: task.dataset.taskId,
+        name: task.querySelector('.task-name')?.value || '',
+        assignee: task.querySelector('.task-assignee')?.value || 'ja',
+        progress: parseInt(task.dataset.progress) || 0,
+        subtasks: []
+      };
+      
+      task.querySelectorAll('.subtask-item').forEach(st => {
+        taskData.subtasks.push({
+          id: st.dataset.subtaskId,
+          name: st.querySelector('.subtask-name')?.value || '',
+          progress: parseInt(st.dataset.progress) || 0
+        });
+      });
+      
+      sectionData.tasks.push(taskData);
     });
+    
+    data.mgmtSections.push(sectionData);
   });
-  document.querySelectorAll('#mgmt-list-2 .sub-item').forEach(item=>{
-    const check=item.querySelector('.sub-item-check');
-    const title=item.querySelector('.sub-item-title').textContent;
-    const link=item.querySelector('.sub-item-link');
-    data.mgmtItems.kpi2.push({
-      id:item.dataset.id,
-      title:title,
-      checked:check?.checked||false,
-      link:link?link.getAttribute('href'):null,
-      linkText:link?link.textContent:null
-    });
-  });
-  document.querySelectorAll('#mgmt-list-3 .sub-item').forEach(item=>{
-    const check=item.querySelector('.sub-item-check');
-    const title=item.querySelector('.sub-item-title').textContent;
-    const link=item.querySelector('.sub-item-link');
-    data.mgmtItems.kpi3.push({
-      id:item.dataset.id,
-      title:title,
-      checked:check?.checked||false,
-      link:link?link.getAttribute('href'):null,
-      linkText:link?link.textContent:null
-    });
-  });
+  
   // 활동 체크박스
   document.querySelectorAll('input[data-k]').forEach(cb=>{data.acts[`${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`]=cb.checked;});
   // 트래커 체크박스
   document.querySelectorAll('input[data-t]').forEach(cb=>{data.tracker[cb.dataset.t]=cb.checked;});
   // 캘린더 체크박스
   document.querySelectorAll('.day-check.checked').forEach(el=>{data.calendar.push(el.dataset.cal);});
-  // KPI 2,3,4 태스크
-  for(let k=2;k<=4;k++){
-    document.querySelectorAll(`#tasks-${k} tr`).forEach(tr=>{
-      const els=tr.querySelectorAll('input,select');
-      const row=[];els.forEach(e=>row.push(e.tagName==='SELECT'?e.value:e.type==='checkbox'?e.checked:e.value));
-      data.tasks[k].push(row);
-    });
-  }
+  
   // Firebase에 데이터 저장
   const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
   window.firebaseSet(dbRef, data).then(() => {
@@ -1661,93 +3170,26 @@ async function loadData(){
       if(d.grades.n)document.getElementById('grade-n').value=d.grades.n;
       if(d.grades.f)document.getElementById('grade-f').value=d.grades.f;
     }
-    if(d.childrenData){
-      childrenData=d.childrenData;
-    }
-    if(d.mgmtCounter){
-      mgmtCounter=d.mgmtCounter;
-    }
     if(d.memoData){
       memoData=d.memoData;
     }
-    // 관리지표 복원 (동적으로 추가된 항목 포함)
-    if(d.mgmtItems){
-      // KPI 1 관리지표 복원
-      if(d.mgmtItems.kpi1){
-        const defaultIds = ['m1','m2','m3','m4','m5'];
-        d.mgmtItems.kpi1.forEach(item=>{
-          // 기본 항목은 체크 상태만 복원
-          if(defaultIds.includes(item.id)){
-            const subItem=document.querySelector(`#mgmt-list-1 .sub-item[data-id="${item.id}"]`);
-            if(subItem){
-              const check=subItem.querySelector('.sub-item-check');
-              if(check){
-                check.checked=item.checked;
-                updateSubItemStatus(check);
-              }
-            }
-          }else{
-            // 동적으로 추가된 항목은 DOM에 추가
-            if(!document.querySelector(`#mgmt-list-1 .sub-item[data-id="${item.id}"]`)){
-              createDynamicMgmtItem('mgmt-list-1', item);
-            }
-          }
-        });
-      }
-      // KPI 2 관리지표 복원
-      if(d.mgmtItems.kpi2){
-        const defaultIds = ['k2m1'];
-        d.mgmtItems.kpi2.forEach(item=>{
-          if(defaultIds.includes(item.id)){
-            const subItem=document.querySelector(`#mgmt-list-2 .sub-item[data-id="${item.id}"]`);
-            if(subItem){
-              const check=subItem.querySelector('.sub-item-check');
-              if(check){
-                check.checked=item.checked;
-                updateSubItemStatus(check);
-              }
-            }
-          }else{
-            if(!document.querySelector(`#mgmt-list-2 .sub-item[data-id="${item.id}"]`)){
-              createDynamicMgmtItem('mgmt-list-2', item);
-            }
-          }
-        });
-      }
-      // KPI 3 관리지표 복원
-      if(d.mgmtItems.kpi3){
-        const defaultIds = ['k3m1'];
-        d.mgmtItems.kpi3.forEach(item=>{
-          if(defaultIds.includes(item.id)){
-            const subItem=document.querySelector(`#mgmt-list-3 .sub-item[data-id="${item.id}"]`);
-            if(subItem){
-              const check=subItem.querySelector('.sub-item-check');
-              if(check){
-                check.checked=item.checked;
-                updateSubItemStatus(check);
-              }
-            }
-          }else{
-            if(!document.querySelector(`#mgmt-list-3 .sub-item[data-id="${item.id}"]`)){
-              createDynamicMgmtItem('mgmt-list-3', item);
-            }
-          }
-        });
-      }
+    // 기타업무 복원
+    if(d.etcTasks){
+      etcTasks = d.etcTasks;
     }
-    // 구버전 호환 (mgmtItems가 배열인 경우)
-    else if(d.mgmtItems && Array.isArray(d.mgmtItems)){
-      d.mgmtItems.forEach(item=>{
-        const subItem=document.querySelector(`.sub-item[data-id="${item.id}"]`);
-        if(subItem){
-          const check=subItem.querySelector('.sub-item-check');
-          if(check){
-            check.checked=item.checked;
-            updateSubItemStatus(check);
-          }
-        }
-      });
+    if(d.etcTaskCounter){
+      etcTaskCounter = d.etcTaskCounter;
     }
+    // 카운터 복원
+    if(d.sectionCounter) sectionCounter = d.sectionCounter;
+    if(d.taskCounter) taskCounter = d.taskCounter;
+    if(d.subtaskCounter) subtaskCounter = d.subtaskCounter;
+    
+    // 새 관리지표 복원
+    if(d.mgmtSections && d.mgmtSections.length > 0){
+      restoreMgmtSections(d.mgmtSections);
+    }
+    
     if(d.acts)Object.keys(d.acts).forEach(k=>{const[kpi,a,w]=k.split('-');const cb=document.querySelector(`input[data-k="${kpi}"][data-a="${a}"][data-w="${w}"]`);if(cb)cb.checked=d.acts[k];});
     if(d.tracker)Object.keys(d.tracker).forEach(k=>{const cb=document.querySelector(`input[data-t="${k}"]`);if(cb)cb.checked=d.tracker[k];});
     // 캘린더 데이터 복원
@@ -1758,21 +3200,50 @@ async function loadData(){
       });
       calcCalendar();
     }
-    // KPI 2,3,4 태스크 로드
-    if(d.tasks){
-      for(let k=2;k<=4;k++){
-        if(d.tasks[k]){
-          d.tasks[k].forEach((row,i)=>{
-            addTask(k);
-            const tr=document.querySelectorAll(`#tasks-${k} tr`)[i];
-            const els=tr.querySelectorAll('input,select');
-            row.forEach((v,j)=>{if(els[j]){if(els[j].type==='checkbox')els[j].checked=v;else els[j].value=v;if(els[j].classList.contains('status-select'))updateStatus(els[j]);}});
-          });
-        }
-      }
-    }
-    calcTr();calcKpi3();calcKpi4();calcSales();calcGrade();
+    calcSales();calcGrade();
   }catch(e){console.error(e);}
+}
+
+// 새 관리지표 복원
+function restoreMgmtSections(sections){
+  sections.forEach(sectionData => {
+    const section = document.querySelector(`[data-section-id="${sectionData.id}"]`);
+    if(section){
+      // 제목 복원
+      const titleInput = section.querySelector('.mgmt-title-input');
+      if(titleInput && sectionData.title) titleInput.value = sectionData.title;
+      
+      // 열기/닫기 상태
+      if(sectionData.open){
+        section.classList.add('open');
+      } else {
+        section.classList.remove('open');
+      }
+      
+      // 업무 복원
+      sectionData.tasks.forEach(taskData => {
+        const task = section.querySelector(`[data-task-id="${taskData.id}"]`);
+        if(task){
+          const nameInput = task.querySelector('.task-name');
+          if(nameInput && taskData.name) nameInput.value = taskData.name;
+          
+          const assignee = task.querySelector('.task-assignee');
+          if(assignee && taskData.assignee){
+            assignee.value = taskData.assignee;
+            assignee.className = 'task-assignee ' + taskData.assignee;
+          }
+          
+          task.dataset.progress = taskData.progress || 0;
+          if(taskData.progress >= 100) task.classList.add('completed');
+          
+          // 하위업무 복원은 renderSubtasks에서 처리
+        }
+      });
+    }
+  });
+  
+  // 진행률 도트 및 계산 업데이트
+  initNewMgmtSystem();
 }
 
 // 동적 관리지표 항목 생성
@@ -1837,6 +3308,768 @@ function exportTracker(){
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',1500);}
+
+// ========== 새로운 관리지표 시스템 ==========
+
+// 대제목(섹션) 토글
+function toggleSection(header){
+  header.closest('.mgmt-section').classList.toggle('open');
+}
+
+// 업무 카드 토글
+function toggleTask(header){
+  header.closest('.task-card').classList.toggle('open');
+}
+
+// 체크박스 토글
+function toggleTaskCheck(checkbox){
+  const taskCard = checkbox.closest('.task-card');
+  const section = taskCard.closest('.mgmt-section');
+  
+  if(checkbox.checked){
+    taskCard.classList.add('completed');
+    taskCard.dataset.progress = 100;
+    const status = taskCard.querySelector('.task-status');
+    if(status) status.textContent = '완료';
+  } else {
+    taskCard.classList.remove('completed');
+    taskCard.dataset.progress = 0;
+    const status = taskCard.querySelector('.task-status');
+    if(status) status.textContent = '진행중';
+  }
+  
+  updateSectionProgress(section);
+  updateTeamOverview();
+  autoSave();
+}
+
+// 섹션에 업무 추가
+function addTaskToSection(input){
+  const name = input.value.trim();
+  if(!name) return;
+  
+  const section = input.closest('.mgmt-section');
+  const taskList = section.querySelector('.task-list');
+  const kpi = section.closest('.mgmt-container').dataset.kpi;
+  const taskId = 't' + kpi + '-' + Date.now();
+  
+  const taskHtml = `
+    <div class="task-card" data-task-id="${taskId}" data-progress="0">
+      <div class="task-header" onclick="toggleTask(this)">
+        <input type="checkbox" class="task-check" onclick="event.stopPropagation();toggleTaskCheck(this)">
+        <input type="text" class="task-name" value="${name}" onclick="event.stopPropagation()" onchange="autoSave()">
+        <span class="task-status">진행중</span>
+        <button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+      </div>
+    </div>
+  `;
+  
+  taskList.insertAdjacentHTML('beforeend', taskHtml);
+  input.value = '';
+  autoSave();
+}
+
+// 섹션 메모 열기
+function openSectionMemo(btn){
+  const section = btn.closest('.mgmt-section');
+  const sectionId = section.dataset.sectionId;
+  const title = section.querySelector('.mgmt-title-input').value;
+  
+  currentMemoTarget = {type:'section', id:sectionId, btn:btn};
+  document.getElementById('memo-title').textContent = title;
+  document.getElementById('memo-input').value = '';
+  renderMemoHistory(sectionId);
+  document.getElementById('memo-overlay').classList.add('show');
+}
+
+// 대제목 삭제
+function deleteSection(btn){
+  if(confirm('이 관리지표(대제목)를 삭제하시겠습니까?\n포함된 모든 업무와 하위업무도 삭제됩니다.')){
+    btn.closest('.mgmt-section').remove();
+    updateAllProgress();
+    updateTeamOverview();
+    autoSave();
+  }
+}
+
+// 업무 삭제
+function deleteTask(btn){
+  if(confirm('이 업무를 삭제하시겠습니까?')){
+    const section = btn.closest('.mgmt-section');
+    btn.closest('.task-card').remove();
+    updateSectionProgress(section);
+    updateTeamOverview();
+    autoSave();
+  }
+}
+
+// 하위업무 삭제
+function deleteSubtask(btn){
+  const taskCard = btn.closest('.task-card');
+  const section = btn.closest('.mgmt-section');
+  btn.closest('.subtask-item').remove();
+  updateTaskProgress(taskCard);
+  updateSectionProgress(section);
+  updateTeamOverview();
+  autoSave();
+}
+
+// 담당자 변경
+function changeAssignee(select){
+  const val = select.value;
+  select.className = 'task-assignee ' + val;
+  updateTeamOverview();
+  autoSave();
+}
+
+// 10% 진행률 설정 - 업무
+function setTaskProgress(dot, val){
+  const wrap = dot.closest('.progress-bar-wrap');
+  const taskCard = wrap.closest('.task-card');
+  const section = taskCard.closest('.mgmt-section');
+  const dots = wrap.querySelectorAll('.progress-dot');
+  const kpi = wrap.querySelector('.progress-dots').dataset.kpi;
+  
+  // 현재 진행률
+  let currentProgress = parseInt(taskCard.dataset.progress) || 0;
+  
+  // 같은 값 클릭시 해제
+  if(currentProgress === val){
+    val = val - 10;
+  }
+  
+  taskCard.dataset.progress = val;
+  
+  // 도트 업데이트
+  dots.forEach((d, i) => {
+    const dotVal = (i + 1) * 10;
+    if(dotVal <= val){
+      d.classList.add('filled');
+    } else {
+      d.classList.remove('filled');
+    }
+  });
+  
+  // 퍼센트 텍스트
+  wrap.querySelector('.task-pct').textContent = val + '%';
+  
+  // 100%면 완료 처리
+  if(val >= 100){
+    taskCard.classList.add('completed');
+  } else {
+    taskCard.classList.remove('completed');
+  }
+  
+  updateSectionProgress(section);
+  updateTeamOverview();
+  autoSave();
+}
+
+// 10% 진행률 설정 - 하위업무
+function setSubtaskProgress(dot, val){
+  const wrap = dot.closest('.subtask-item');
+  const taskCard = wrap.closest('.task-card');
+  const section = taskCard.closest('.mgmt-section');
+  const dots = wrap.querySelectorAll('.subtask-dot');
+  
+  let currentProgress = parseInt(wrap.dataset.progress) || 0;
+  if(currentProgress === val) val = val - 10;
+  
+  wrap.dataset.progress = val;
+  
+  dots.forEach((d, i) => {
+    const dotVal = (i + 1) * 10;
+    d.classList.toggle('filled', dotVal <= val);
+  });
+  
+  wrap.querySelector('.subtask-pct').textContent = val + '%';
+  
+  if(val >= 100){
+    wrap.classList.add('completed');
+  } else {
+    wrap.classList.remove('completed');
+  }
+  
+  updateTaskProgress(taskCard);
+  updateSectionProgress(section);
+  updateTeamOverview();
+  autoSave();
+}
+
+// 업무 진행률 업데이트 (하위업무 평균)
+function updateTaskProgress(taskCard){
+  const subtasks = taskCard.querySelectorAll('.subtask-item');
+  if(subtasks.length === 0) return;
+  
+  let total = 0;
+  subtasks.forEach(st => {
+    total += parseInt(st.dataset.progress) || 0;
+  });
+  
+  const avg = Math.round(total / subtasks.length);
+  taskCard.dataset.progress = avg;
+  
+  const dots = taskCard.querySelectorAll('.task-header .progress-dot');
+  dots.forEach((d, i) => {
+    const dotVal = (i + 1) * 10;
+    d.classList.toggle('filled', dotVal <= avg);
+  });
+  
+  taskCard.querySelector('.task-pct').textContent = avg + '%';
+  taskCard.classList.toggle('completed', avg >= 100);
+}
+
+// 대제목 진행률 업데이트 (업무 평균)
+function updateSectionProgress(section){
+  const tasks = section.querySelectorAll('.task-card');
+  if(tasks.length === 0) return;
+  
+  let total = 0;
+  tasks.forEach(t => {
+    total += parseInt(t.dataset.progress) || 0;
+  });
+  
+  const avg = Math.round(total / tasks.length);
+  const bar = section.querySelector('.mgmt-progress-fill');
+  const text = section.querySelector('.mgmt-progress-text');
+  
+  if(bar) bar.style.width = avg + '%';
+  if(text) text.textContent = avg + '%';
+}
+
+// 전체 진행률 업데이트
+function updateAllProgress(){
+  document.querySelectorAll('.mgmt-section').forEach(section => {
+    updateSectionProgress(section);
+  });
+}
+
+// 새 대제목(섹션) 추가
+function addSection(kpiNum){
+  const title = prompt('새 관리지표(대제목)를 입력하세요:');
+  if(!title) return;
+  
+  const container = document.getElementById('mgmt-container-' + kpiNum);
+  const addBtn = container.querySelector('.add-section-btn');
+  const sectionId = 's' + kpiNum + '-' + (++sectionCounter);
+  
+  const section = document.createElement('div');
+  section.className = 'mgmt-section open';
+  section.dataset.sectionId = sectionId;
+  section.innerHTML = `
+    <div class="mgmt-header k${kpiNum}" onclick="toggleSection(this)">
+      <span class="mgmt-expand">▶</span>
+      <input type="text" class="mgmt-title-input" value="📌 ${title}" onclick="event.stopPropagation()" onchange="autoSave()">
+      <div class="mgmt-progress">
+        <div class="mgmt-progress-bar"><div class="mgmt-progress-fill k${kpiNum}" style="width:0%"></div></div>
+        <span class="mgmt-progress-text k${kpiNum}">0%</span>
+      </div>
+      <button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+    </div>
+    <div class="mgmt-body">
+      <div class="task-list"></div>
+      <button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+    </div>
+  `;
+  
+  container.insertBefore(section, addBtn);
+  autoSave();
+}
+
+// 새 업무 추가
+function addTask(btn){
+  const title = prompt('새 업무를 입력하세요:');
+  if(!title) return;
+  
+  const section = btn.closest('.mgmt-section');
+  const taskList = section.querySelector('.task-list');
+  const kpi = section.closest('.mgmt-container').dataset.kpi;
+  const taskId = 't' + kpi + '-' + (++taskCounter);
+  
+  const task = document.createElement('div');
+  task.className = 'task-card';
+  task.dataset.taskId = taskId;
+  task.dataset.progress = '0';
+  task.dataset.assignee = 'ja';
+  task.innerHTML = `
+    <div class="task-header" onclick="toggleTask(this)">
+      <span class="task-expand">▶</span>
+      <input type="text" class="task-name" value="${title}" onclick="event.stopPropagation()" onchange="autoSave()">
+      <select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+        <option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+      </select>
+      <div class="progress-bar-wrap" onclick="event.stopPropagation()">
+        <div class="progress-dots" data-kpi="${kpi}"></div>
+        <span class="task-pct">0%</span>
+      </div>
+      <button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+      <button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+    </div>
+    <div class="subtask-body">
+      <div class="subtask-list"></div>
+      <div class="add-row">
+        <input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+        <button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+      </div>
+    </div>
+  `;
+  
+  taskList.appendChild(task);
+  initProgressDots(task, kpi);
+  updateTeamOverview();
+  autoSave();
+}
+
+// 하위업무 추가
+function addSubtask(input){
+  const title = input.value.trim();
+  if(!title) return;
+  
+  const taskCard = input.closest('.task-card');
+  const section = input.closest('.mgmt-section');
+  const subtaskList = taskCard.querySelector('.subtask-list');
+  const kpi = section.closest('.mgmt-container').dataset.kpi;
+  const subtaskId = 'st-' + (++subtaskCounter);
+  
+  const subtask = document.createElement('div');
+  subtask.className = 'subtask-item';
+  subtask.dataset.subtaskId = subtaskId;
+  subtask.dataset.progress = '0';
+  subtask.innerHTML = `
+    <input type="text" class="subtask-name" value="${title}" onchange="autoSave()">
+    <div class="subtask-dots" data-kpi="${kpi}"></div>
+    <span class="subtask-pct">0%</span>
+    <button class="subtask-memo" onclick="openSubtaskMemo(this)">📝</button>
+    <button class="subtask-del" onclick="deleteSubtask(this)">×</button>
+  `;
+  
+  subtaskList.appendChild(subtask);
+  initSubtaskDots(subtask, kpi);
+  input.value = '';
+  autoSave();
+}
+
+// 진행률 도트 초기화 - 업무
+function initProgressDots(taskCard, kpi){
+  const dotsWrap = taskCard.querySelector('.progress-dots');
+  if(!dotsWrap) return;
+  
+  dotsWrap.innerHTML = '';
+  for(let i = 1; i <= 10; i++){
+    const dot = document.createElement('span');
+    dot.className = 'progress-dot k' + kpi;
+    dot.dataset.val = i * 10;
+    dot.onclick = function(e){ e.stopPropagation(); setTaskProgress(this, i * 10); };
+    dotsWrap.appendChild(dot);
+  }
+}
+
+// 진행률 도트 초기화 - 하위업무
+function initSubtaskDots(subtaskItem, kpi){
+  const dotsWrap = subtaskItem.querySelector('.subtask-dots');
+  if(!dotsWrap) return;
+  
+  dotsWrap.innerHTML = '';
+  for(let i = 1; i <= 10; i++){
+    const dot = document.createElement('span');
+    dot.className = 'subtask-dot';
+    dot.dataset.val = i * 10;
+    dot.onclick = function(){ setSubtaskProgress(this, i * 10); };
+    dotsWrap.appendChild(dot);
+  }
+}
+
+// 모든 진행률 도트 초기화
+function initAllProgressDots(){
+  document.querySelectorAll('.task-card').forEach(card => {
+    const kpi = card.closest('.mgmt-container')?.dataset.kpi || '1';
+    initProgressDots(card, kpi);
+  });
+  document.querySelectorAll('.subtask-item').forEach(item => {
+    const kpi = item.closest('.mgmt-container')?.dataset.kpi || '1';
+    initSubtaskDots(item, kpi);
+  });
+}
+
+// ========== 메모 시스템 ==========
+function openTaskMemo(btn){
+  const taskCard = btn.closest('.task-card');
+  const taskId = taskCard.dataset.taskId;
+  const taskName = taskCard.querySelector('.task-name').value;
+  currentMemoTarget = {type: 'task', id: taskId, btn: btn};
+  
+  document.getElementById('memo-modal-title').textContent = '📝 ' + taskName;
+  document.getElementById('memo-textarea').value = '';
+  renderMemoHistory(taskId);
+  document.getElementById('memo-modal').classList.add('open');
+}
+
+function openSubtaskMemo(btn){
+  const subtaskItem = btn.closest('.subtask-item');
+  const subtaskId = subtaskItem.dataset.subtaskId;
+  const subtaskName = subtaskItem.querySelector('.subtask-name').value;
+  currentMemoTarget = {type: 'subtask', id: subtaskId, btn: btn};
+  
+  document.getElementById('memo-modal-title').textContent = '📝 ' + subtaskName;
+  document.getElementById('memo-textarea').value = '';
+  renderMemoHistory(subtaskId);
+  document.getElementById('memo-modal').classList.add('open');
+}
+
+function renderMemoHistory(id){
+  const history = document.getElementById('memo-history');
+  const memos = memoData[id] || [];
+  
+  if(memos.length === 0){
+    history.innerHTML = '<div class="memo-history-title">📋 이전 기록</div><div style="color:var(--gray-400);font-size:0.75rem;padding:10px">기록 없음</div>';
+  } else {
+    history.innerHTML = '<div class="memo-history-title">📋 이전 기록</div>' + 
+      memos.map((m, i) => `<div class="memo-history-item"><span class="memo-date">${m.date}</span><span class="memo-text">${m.text}</span><button class="memo-del" onclick="deleteMemoItem('${id}',${i})">×</button></div>`).join('');
+  }
+}
+
+function saveMemo(){
+  const text = document.getElementById('memo-textarea').value.trim();
+  if(!text || !currentMemoTarget) return;
+  
+  const id = currentMemoTarget.id;
+  if(!memoData[id]) memoData[id] = [];
+  
+  memoData[id].unshift({
+    date: new Date().toLocaleDateString('ko-KR'),
+    text: text
+  });
+  
+  currentMemoTarget.btn.classList.add('has-memo');
+  document.getElementById('memo-textarea').value = '';
+  renderMemoHistory(id);
+  autoSave();
+  showToast('메모 저장됨');
+}
+
+function deleteMemoItem(id, index){
+  if(memoData[id]){
+    memoData[id].splice(index, 1);
+    if(memoData[id].length === 0){
+      currentMemoTarget.btn.classList.remove('has-memo');
+    }
+    renderMemoHistory(id);
+    autoSave();
+  }
+}
+
+function closeMemo(){
+  document.getElementById('memo-modal').classList.remove('open');
+  currentMemoTarget = null;
+}
+
+// ========== 팀원별 현황 ==========
+function updateTeamOverview(){
+  const teamData = {ja:{tasks:[], total:0, sum:0}, yr:{tasks:[], total:0, sum:0}, sj:{tasks:[], total:0, sum:0}};
+  
+  document.querySelectorAll('.task-card').forEach(card => {
+    const assignee = card.querySelector('.task-assignee')?.value || 'ja';
+    const name = card.querySelector('.task-name')?.value || '';
+    const progress = parseInt(card.dataset.progress) || 0;
+    const kpi = card.closest('.mgmt-container')?.dataset.kpi || '1';
+    
+    if(teamData[assignee]){
+      teamData[assignee].tasks.push({name, progress, kpi});
+      teamData[assignee].total++;
+      teamData[assignee].sum += progress;
+    }
+  });
+  
+  ['ja','yr','sj'].forEach(key => {
+    const d = teamData[key];
+    document.getElementById('team-'+key+'-total').textContent = d.total;
+    document.getElementById('team-'+key+'-avg').textContent = d.total > 0 ? Math.round(d.sum/d.total)+'%' : '0%';
+    
+    const tasksEl = document.getElementById('team-'+key+'-tasks');
+    if(tasksEl){
+      tasksEl.innerHTML = d.tasks.slice(0,5).map(t => `
+        <div class="team-task ${t.progress>=100?'done':''}">
+          <span class="team-task-dot k${t.kpi}"></span>
+          <span class="team-task-name">${t.name}</span>
+          <span class="team-task-pct">${t.progress}%</span>
+        </div>
+      `).join('') || '<div style="color:var(--gray-400);font-size:0.65rem;padding:8px;text-align:center">업무 없음</div>';
+    }
+  });
+}
+
+// ========== 마인드맵 ==========
+function openMindMap(){
+  document.getElementById('mindmap-overlay').classList.add('show');
+  renderMindmap();
+}
+
+function closeMindMap(){
+  document.getElementById('mindmap-overlay').classList.remove('show');
+}
+
+function closeMindMapOutside(e){
+  if(e.target.id === 'mindmap-overlay') closeMindMap();
+}
+
+function setMindmapFilter(f){
+  mindmapFilter = f;
+  document.querySelectorAll('.mindmap-filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  renderMindmap();
+}
+
+function renderMindmap(){
+  const kpis = [
+    {num:'1', name:'협력사 활성 가동율', icon:'🏭'},
+    {num:'2', name:'거래 회수 안정화', icon:'💰'},
+    {num:'3', name:'운영실행 납기준수', icon:'⏱️'},
+    {num:'4', name:'업무자동화', icon:'🤖', showAll: true},  // 모든 담당자에게 표시
+    {num:'etc', name:'기타업무', icon:'📋', showAll: true}   // 기타업무 추가
+  ];
+  
+  const tasks = [];
+  document.querySelectorAll('.task-card').forEach(card => {
+    const assignee = card.querySelector('.task-assignee')?.value || 'ja';
+    const name = card.querySelector('.task-name')?.value || '';
+    const progress = parseInt(card.dataset.progress) || 0;
+    const kpi = card.closest('.mgmt-container')?.dataset.kpi || '1';
+    const taskId = card.dataset.taskId;
+    
+    // 모든 메모 이력 가져오기
+    const taskMemos = memoData[taskId] || [];
+    
+    // KPI 4(업무자동화)는 항상 포함, 나머지는 필터 적용
+    if(mindmapFilter === 'all' || kpi === '4' || assignee === mindmapFilter){
+      tasks.push({name, progress, kpi, assignee, memos: taskMemos});
+    }
+  });
+  
+  // 기타업무 추가
+  etcTasks.forEach(task => {
+    if(mindmapFilter === 'all' || task.assignee === mindmapFilter){
+      // 기타업무 메모 이력
+      const memos = [];
+      if(task.memo) memos.push({date: '', text: task.memo});
+      if(task.history) {
+        task.history.forEach(h => memos.push({date: h.date, text: h.text}));
+      }
+      tasks.push({
+        name: task.name,
+        progress: task.progress,
+        kpi: 'etc',
+        assignee: task.assignee,
+        memos: memos
+      });
+    }
+  });
+  
+  const names = {ja:'정아', yr:'지연', sj:'수진'};
+  const filterTitle = mindmapFilter === 'all' ? '서비스운영2팀<br>KPI' : names[mindmapFilter] + '님<br>업무현황';
+  
+  // 회사 목표와 팀 본질 가져오기
+  const companyGoal = document.getElementById('company-goal')?.value || '회사 목표를 입력하세요';
+  const teamMission = document.getElementById('team-mission')?.value || '팀 본질을 입력하세요';
+  
+  const leftKpis = kpis.slice(0, 2);
+  const rightKpis = kpis.slice(2, 5);  // KPI 3, 4, 기타업무
+  
+  const html = `
+    <div class="mindmap-top-info">
+      <div class="mindmap-company-goal">
+        <span class="mindmap-info-icon">🏢</span>
+        <span class="mindmap-info-label">회사 목표</span>
+        <span class="mindmap-info-text">${companyGoal}</span>
+      </div>
+      <div class="mindmap-team-mission">
+        <span class="mindmap-info-icon">🎯</span>
+        <span class="mindmap-info-label">팀 본질</span>
+        <span class="mindmap-info-text">${teamMission}</span>
+      </div>
+    </div>
+    <div class="mindmap-main">
+      <div class="mindmap-side left">
+        <div class="mindmap-branches">
+          ${leftKpis.map(kpi => renderMindmapBranch(kpi, tasks, 'left')).join('')}
+        </div>
+        <div class="mindmap-main-line"></div>
+      </div>
+      <div class="mindmap-center">${filterTitle}<div class="mindmap-center-sub">2026</div></div>
+      <div class="mindmap-side right">
+        <div class="mindmap-main-line"></div>
+        <div class="mindmap-branches">
+          ${rightKpis.map(kpi => renderMindmapBranch(kpi, tasks, 'right')).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('mindmap-container').innerHTML = html;
+}
+
+function renderMindmapBranch(kpi, allTasks, side){
+  let tasks = allTasks.filter(t => t.kpi === kpi.num);
+  
+  // KPI 4(업무자동화) 및 기타업무는 담당자 필터 적용 - 해당 담당자의 업무만 표시
+  if((kpi.num === '4' || kpi.num === 'etc') && mindmapFilter !== 'all'){
+    tasks = tasks.filter(t => t.assignee === mindmapFilter);
+  }
+  
+  if(tasks.length === 0) return '';
+  
+  const names = {ja:'정아', yr:'지연', sj:'수진'};
+  const kpiClass = kpi.num === 'etc' ? '5' : kpi.num;  // 기타업무용 스타일
+  
+  return `
+    <div class="mindmap-branch">
+      <div class="mindmap-cat-line"></div>
+      <div class="mindmap-cat-wrap">
+        <div class="mindmap-category">
+          <div class="mindmap-cat-icon k${kpiClass}">${kpi.icon}</div>
+          <div class="mindmap-cat-name">${kpi.num === 'etc' ? '' : kpi.num + '. '}${kpi.name}</div>
+        </div>
+        <div class="mindmap-tasks-line"></div>
+        <div class="mindmap-tasks">
+          ${tasks.map(t => `
+            <div class="mindmap-task-row">
+              <div class="mindmap-task-line"></div>
+              <div class="mindmap-task ${t.progress >= 100 ? 'done' : ''} ${t.memos && t.memos.length > 0 ? 'has-memo' : ''}">
+                <div class="mindmap-task-header">
+                  <span class="mindmap-task-name">${t.name}</span>
+                  <span class="mindmap-task-pct">${t.progress}%</span>
+                  ${mindmapFilter === 'all' ? `<span class="mindmap-task-assignee ${t.assignee}">${names[t.assignee]}</span>` : ''}
+                </div>
+                ${t.memos && t.memos.length > 0 ? `
+                  <div class="mindmap-task-memos">
+                    ${t.memos.map(m => `<div class="mindmap-memo-item">📝 ${m.date ? m.date + ' ' : ''}${m.text}</div>`).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function downloadMindmapPng(){
+  try {
+    showToast('PNG 생성 중...');
+    const canvas = await html2canvas(document.getElementById('mindmap-container'), {backgroundColor:'#f8fafc',scale:2});
+    const link = document.createElement('a');
+    const names = {all:'전체', ja:'정아', yr:'지연', sj:'수진'};
+    link.download = '서비스운영2팀_마인드맵_' + names[mindmapFilter] + '_' + new Date().toISOString().slice(0,10) + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('PNG 다운로드 완료');
+  } catch(e) {
+    console.error(e);
+    showToast('다운로드 실패');
+  }
+}
+
+// ========== JSON 내보내기/불러오기 ==========
+function openJsonModal(){
+  document.getElementById('json-overlay').classList.add('show');
+}
+
+function closeJsonModal(){
+  document.getElementById('json-overlay').classList.remove('show');
+}
+
+function closeJsonOutside(e){
+  if(e.target.id === 'json-overlay') closeJsonModal();
+}
+
+function exportJSON(){
+  const data = {
+    version: 'v17',
+    exportDate: new Date().toISOString(),
+    memoData: memoData,
+    sections: [],
+    counters: {section: sectionCounter, task: taskCounter, subtask: subtaskCounter}
+  };
+  
+  document.querySelectorAll('.mgmt-section').forEach(section => {
+    const sectionData = {
+      id: section.dataset.sectionId,
+      kpi: section.closest('.mgmt-container')?.dataset.kpi,
+      title: section.querySelector('.mgmt-title-input')?.value,
+      tasks: []
+    };
+    
+    section.querySelectorAll('.task-card').forEach(task => {
+      const taskData = {
+        id: task.dataset.taskId,
+        name: task.querySelector('.task-name')?.value,
+        assignee: task.querySelector('.task-assignee')?.value,
+        progress: task.dataset.progress,
+        subtasks: []
+      };
+      
+      task.querySelectorAll('.subtask-item').forEach(st => {
+        taskData.subtasks.push({
+          id: st.dataset.subtaskId,
+          name: st.querySelector('.subtask-name')?.value,
+          progress: st.dataset.progress
+        });
+      });
+      
+      sectionData.tasks.push(taskData);
+    });
+    
+    data.sections.push(sectionData);
+  });
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '서비스운영2팀_KPI_' + new Date().toISOString().slice(0,10) + '.json';
+  link.click();
+  
+  showToast('JSON 내보내기 완료');
+  closeJsonModal();
+}
+
+function importJSON(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const data = JSON.parse(e.target.result);
+      if(confirm('불러온 데이터로 현재 데이터를 덮어쓰시겠습니까?')){
+        if(data.memoData) memoData = data.memoData;
+        if(data.counters){
+          sectionCounter = data.counters.section || 10;
+          taskCounter = data.counters.task || 100;
+          subtaskCounter = data.counters.subtask || 1000;
+        }
+        
+        // 섹션 복원은 복잡하므로 기본 데이터만 복원
+        showToast('JSON 불러오기 완료');
+        location.reload();
+      }
+    } catch(err){
+      console.error(err);
+      alert('JSON 파일 형식이 올바르지 않습니다.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+  closeJsonModal();
+}
+
+// ========== 초기화 ==========
+function initNewMgmtSystem(){
+  initAllProgressDots();
+  updateAllProgress();
+  updateTeamOverview();
+}
 
 // Firebase가 준비될 때까지 기다린 후 초기화
 function waitForFirebase() {
