@@ -523,8 +523,16 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .mindmap-task-assignee.ja{background:#fee2e2;color:#dc2626}
 .mindmap-task-assignee.yr{background:#dbeafe;color:#2563eb}
 .mindmap-task-assignee.sj{background:#d1fae5;color:#059669}
-.mindmap-task.has-memo{flex-direction:column;align-items:flex-start;padding:5px 6px;gap:3px}
+.mindmap-task.has-content{flex-direction:column;align-items:flex-start;padding:5px 8px;gap:4px}
+.mindmap-task.has-memo{flex-direction:column;align-items:flex-start;padding:5px 8px;gap:4px}
 .mindmap-task-header{display:flex;align-items:center;gap:4px;width:100%}
+.mindmap-subtasks{display:flex;flex-direction:column;gap:2px;width:100%;padding-left:4px;border-left:2px solid var(--primary-light)}
+.mindmap-subtask-item{display:flex;align-items:center;gap:4px;font-size:0.45rem;color:var(--gray-500);padding:1px 0}
+.mindmap-subtask-item.done{color:var(--gray-400)}
+.mindmap-subtask-item.done .mindmap-subtask-name{text-decoration:line-through}
+.mindmap-subtask-check{font-size:0.4rem;color:var(--primary)}
+.mindmap-subtask-item.done .mindmap-subtask-check{color:var(--success)}
+.mindmap-subtask-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mindmap-task-memos{display:flex;flex-direction:column;gap:2px;width:100%}
 .mindmap-memo-item{font-size:0.48rem;color:#92400e;background:rgba(251,191,36,0.2);padding:2px 5px;border-radius:3px;border-left:2px solid var(--warning);max-width:200px;word-break:break-all}
 
@@ -3938,9 +3946,19 @@ function renderMindmap(){
     // 모든 메모 이력 가져오기
     const taskMemos = memoData[taskId] || [];
     
+    // 하위업무(subtasks) 수집
+    const subtasks = [];
+    card.querySelectorAll('.subtask-item').forEach(sub => {
+      const subName = sub.querySelector('.subtask-name')?.value || '';
+      const subDone = sub.querySelector('.subtask-check')?.checked || false;
+      if(subName) {
+        subtasks.push({name: subName, done: subDone});
+      }
+    });
+    
     // KPI 4(업무자동화)는 항상 포함, 나머지는 필터 적용
     if(mindmapFilter === 'all' || kpi === '4' || assignee === mindmapFilter){
-      tasks.push({name, progress, kpi, assignee, memos: taskMemos});
+      tasks.push({name, progress, kpi, assignee, memos: taskMemos, subtasks: subtasks});
     }
   });
   
@@ -3953,12 +3971,16 @@ function renderMindmap(){
       if(task.history) {
         task.history.forEach(h => memos.push({date: h.date, text: h.text}));
       }
+      // 기타업무 하위업무
+      const subtasks = task.subtasks || [];
+      
       tasks.push({
         name: task.name,
         progress: task.progress,
         kpi: 'etc',
         assignee: task.assignee,
-        memos: memos
+        memos: memos,
+        subtasks: subtasks
       });
     }
   });
@@ -4029,23 +4051,38 @@ function renderMindmapBranch(kpi, allTasks, side){
         </div>
         <div class="mindmap-tasks-line"></div>
         <div class="mindmap-tasks">
-          ${tasks.map(t => `
+          ${tasks.map(t => {
+            const hasSubtasks = t.subtasks && t.subtasks.length > 0;
+            const hasMemos = t.memos && t.memos.length > 0;
+            const hasContent = hasSubtasks || hasMemos;
+            
+            return `
             <div class="mindmap-task-row">
               <div class="mindmap-task-line"></div>
-              <div class="mindmap-task ${t.progress >= 100 ? 'done' : ''} ${t.memos && t.memos.length > 0 ? 'has-memo' : ''}">
+              <div class="mindmap-task ${t.progress >= 100 ? 'done' : ''} ${hasContent ? 'has-content' : ''}">
                 <div class="mindmap-task-header">
                   <span class="mindmap-task-name">${t.name}</span>
                   <span class="mindmap-task-pct">${t.progress}%</span>
                   ${mindmapFilter === 'all' ? `<span class="mindmap-task-assignee ${t.assignee}">${names[t.assignee]}</span>` : ''}
                 </div>
-                ${t.memos && t.memos.length > 0 ? `
+                ${hasSubtasks ? `
+                  <div class="mindmap-subtasks">
+                    ${t.subtasks.map(sub => `
+                      <div class="mindmap-subtask-item ${sub.done ? 'done' : ''}">
+                        <span class="mindmap-subtask-check">${sub.done ? '✓' : '○'}</span>
+                        <span class="mindmap-subtask-name">${sub.name}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                ${hasMemos ? `
                   <div class="mindmap-task-memos">
                     ${t.memos.map(m => `<div class="mindmap-memo-item">📝 ${m.date ? m.date + ' ' : ''}${m.text}</div>`).join('')}
                   </div>
                 ` : ''}
               </div>
             </div>
-          `).join('')}
+          `;}).join('')}
         </div>
       </div>
     </div>
