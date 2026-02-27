@@ -482,8 +482,9 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .mindmap-btn{padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer}
 .mindmap-btn.close{background:var(--gray-100);border:1px solid var(--gray-200);color:var(--gray-600)}
 .mindmap-btn.png{background:var(--success);border:none;color:#fff}
-.mindmap-content{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;background:linear-gradient(135deg,#f8fafc,#e2e8f0)}
-.mindmap-container{display:flex;flex-direction:column;width:100%;min-height:100%}
+.mindmap-content{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;background:linear-gradient(135deg,#f8fafc,#e2e8f0);cursor:grab}
+.mindmap-content:active{cursor:grabbing}
+.mindmap-container{display:flex;flex-direction:column;width:100%;min-width:1200px;min-height:800px}
 .mindmap-center{background:linear-gradient(135deg,var(--primary),#818cf8);color:#fff;padding:24px 36px;border-radius:16px;font-size:1.1rem;font-weight:800;text-align:center;box-shadow:0 8px 24px rgba(99,102,241,0.4)}
 .mindmap-center-sub{font-size:0.7rem;font-weight:500;opacity:0.85;margin-top:4px}
 .mindmap-side{display:flex;align-items:center}
@@ -524,8 +525,8 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .mindmap-task-assignee.sj{background:#d1fae5;color:#059669}
 .mindmap-task.has-memo{flex-direction:column;align-items:flex-start;padding:5px 6px;gap:3px}
 .mindmap-task-header{display:flex;align-items:center;gap:4px;width:100%}
-.mindmap-task-memos{display:flex;flex-direction:column;gap:2px;width:100%;max-height:80px;overflow-y:auto}
-.mindmap-memo-item{font-size:0.48rem;color:#92400e;background:rgba(251,191,36,0.2);padding:2px 5px;border-radius:3px;border-left:2px solid var(--warning);max-width:130px;word-break:break-all}
+.mindmap-task-memos{display:flex;flex-direction:column;gap:2px;width:100%}
+.mindmap-memo-item{font-size:0.48rem;color:#92400e;background:rgba(251,191,36,0.2);padding:2px 5px;border-radius:3px;border-left:2px solid var(--warning);max-width:200px;word-break:break-all}
 
 /* 마인드맵 상단 정보 - 왼쪽 상단 */
 .mindmap-top-info{display:flex;gap:12px;padding:12px 16px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:20px;flex-wrap:wrap}
@@ -623,8 +624,25 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .etc-progress-dot.filled{background:var(--success)}
 .etc-task-pct{font-size:0.72rem;font-weight:700;color:var(--gray-600)}
 .etc-task-memo{padding:8px 10px;background:var(--gray-50);border-radius:6px;margin-bottom:8px}
+.etc-memo-title{font-size:0.65rem;font-weight:600;color:var(--gray-500);margin-bottom:4px}
 .etc-task-memo-input{width:100%;border:none;background:transparent;font-size:0.72rem;color:var(--gray-600);resize:none}
 .etc-task-memo-input:focus{outline:none}
+.etc-subtask-section{padding:8px 10px;background:var(--gray-50);border-radius:6px;margin-bottom:8px}
+.etc-subtask-title{font-size:0.65rem;font-weight:600;color:var(--gray-500);margin-bottom:6px}
+.etc-subtask-list{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+.etc-subtask-item{display:flex;align-items:center;gap:6px;padding:4px 6px;background:#fff;border-radius:4px;border:1px solid var(--gray-200)}
+.etc-subtask-item.done{background:#f0fdf4;border-color:#86efac}
+.etc-subtask-item.done .etc-subtask-name{text-decoration:line-through;color:var(--gray-400)}
+.etc-subtask-item input[type="checkbox"]{width:14px;height:14px;accent-color:var(--success)}
+.etc-subtask-name{flex:1;border:none;background:transparent;font-size:0.68rem;color:var(--gray-600)}
+.etc-subtask-name:focus{outline:none}
+.etc-subtask-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:0.7rem;opacity:0.3}
+.etc-subtask-del:hover{opacity:1}
+.etc-subtask-add{display:flex;gap:6px}
+.etc-subtask-input{flex:1;padding:4px 8px;border:1px dashed var(--gray-300);border-radius:4px;font-size:0.68rem}
+.etc-subtask-input:focus{outline:none;border-color:var(--primary)}
+.etc-subtask-add-btn{padding:4px 10px;background:var(--primary);color:#fff;border:none;border-radius:4px;font-size:0.65rem;font-weight:600;cursor:pointer}
+.etc-subtask-add-btn:hover{background:var(--primary-dark)}
 .etc-task-history{border-top:1px solid var(--gray-200);padding-top:8px}
 .etc-history-title{font-size:0.65rem;font-weight:600;color:var(--gray-500);margin-bottom:6px}
 .etc-history-item{display:flex;gap:6px;padding:4px 0;font-size:0.65rem;color:var(--gray-500)}
@@ -2614,6 +2632,8 @@ function renderEtcTasks(){
   
   filteredTasks.forEach(task => {
     const isComplete = task.progress >= 100;
+    const subtasks = task.subtasks || [];
+    
     html += `
       <div class="etc-task-card ${task.assignee} ${isComplete ? 'completed' : ''}" data-etc-id="${task.id}">
         <div class="etc-task-header">
@@ -2632,13 +2652,33 @@ function renderEtcTasks(){
           </div>
           <span class="etc-task-pct">${task.progress}%</span>
         </div>
+        
+        <!-- 하위업무 목록 -->
+        <div class="etc-subtask-section">
+          <div class="etc-subtask-title">📋 하위업무 (${subtasks.length})</div>
+          <div class="etc-subtask-list">
+            ${subtasks.map((sub, idx) => `
+              <div class="etc-subtask-item ${sub.done ? 'done' : ''}">
+                <input type="checkbox" ${sub.done ? 'checked' : ''} onchange="toggleEtcSubtask(${task.id}, ${idx})">
+                <input type="text" class="etc-subtask-name" value="${sub.name}" onchange="updateEtcSubtask(${task.id}, ${idx}, this.value)">
+                <button class="etc-subtask-del" onclick="deleteEtcSubtask(${task.id}, ${idx})">×</button>
+              </div>
+            `).join('')}
+          </div>
+          <div class="etc-subtask-add">
+            <input type="text" class="etc-subtask-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addEtcSubtask(${task.id}, this)">
+            <button class="etc-subtask-add-btn" onclick="addEtcSubtask(${task.id}, this.previousElementSibling)">+ 추가</button>
+          </div>
+        </div>
+        
         <div class="etc-task-memo">
+          <div class="etc-memo-title">📝 메모</div>
           <textarea class="etc-task-memo-input" placeholder="메모 입력..." rows="2" onchange="updateEtcTask(${task.id}, 'memo', this.value)">${task.memo || ''}</textarea>
         </div>
         ${task.history && task.history.length > 0 ? `
           <div class="etc-task-history">
             <div class="etc-history-title">📋 진행 이력</div>
-            ${task.history.slice(0, 3).map(h => `
+            ${task.history.slice(0, 5).map(h => `
               <div class="etc-history-item">
                 <span class="etc-history-date">${h.date}</span>
                 <span class="etc-history-text">${h.text}</span>
@@ -2657,6 +2697,63 @@ function renderEtcTasks(){
   html += `<div class="etc-add-card" onclick="addEtcTask()">+ 새 기타업무 추가</div>`;
   
   container.innerHTML = html;
+}
+
+// 기타업무 하위업무 추가
+function addEtcSubtask(taskId, input){
+  const name = input.value.trim();
+  if(!name) return;
+  
+  const task = etcTasks.find(t => t.id === taskId);
+  if(!task) return;
+  
+  if(!task.subtasks) task.subtasks = [];
+  task.subtasks.push({name: name, done: false});
+  
+  input.value = '';
+  renderEtcTasks();
+  autoSave();
+}
+
+// 기타업무 하위업무 토글
+function toggleEtcSubtask(taskId, idx){
+  const task = etcTasks.find(t => t.id === taskId);
+  if(!task || !task.subtasks || !task.subtasks[idx]) return;
+  
+  task.subtasks[idx].done = !task.subtasks[idx].done;
+  
+  // 진행률 자동 계산
+  const completed = task.subtasks.filter(s => s.done).length;
+  const total = task.subtasks.length;
+  task.progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+  
+  renderEtcTasks();
+  autoSave();
+}
+
+// 기타업무 하위업무 수정
+function updateEtcSubtask(taskId, idx, value){
+  const task = etcTasks.find(t => t.id === taskId);
+  if(!task || !task.subtasks || !task.subtasks[idx]) return;
+  
+  task.subtasks[idx].name = value;
+  autoSave();
+}
+
+// 기타업무 하위업무 삭제
+function deleteEtcSubtask(taskId, idx){
+  const task = etcTasks.find(t => t.id === taskId);
+  if(!task || !task.subtasks) return;
+  
+  task.subtasks.splice(idx, 1);
+  
+  // 진행률 재계산
+  const completed = task.subtasks.filter(s => s.done).length;
+  const total = task.subtasks.length;
+  task.progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+  
+  renderEtcTasks();
+  autoSave();
 }
 
 function addEtcTask(){
