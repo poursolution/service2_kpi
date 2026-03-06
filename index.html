@@ -2280,27 +2280,36 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
   import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCDX6sy0ap61t3k60J8oWvIZq5nAoRUvY8",
-    authDomain: "service2-kpi.firebaseapp.com",
-    databaseURL: "https://service2-kpi-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "service2-kpi",
-    storageBucket: "service2-kpi.firebasestorage.app",
-    messagingSenderId: "839616671899",
-    appId: "1:839616671899:web:7deec77e60818339fe163e"
-  };
+  try {
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCDX6sy0ap61t3k60J8oWvIZq5nAoRUvY8",
+      authDomain: "service2-kpi.firebaseapp.com",
+      databaseURL: "https://service2-kpi-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "service2-kpi",
+      storageBucket: "service2-kpi.firebasestorage.app",
+      messagingSenderId: "839616671899",
+      appId: "1:839616671899:web:7deec77e60818339fe163e"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-  // Expose to global scope for use in other scripts
-  window.firebaseDB = database;
-  window.firebaseRef = ref;
-  window.firebaseSet = set;
-  window.firebaseGet = get;
-  window.firebaseReady = true;
+    // Expose to global scope for use in other scripts
+    window.firebaseDB = database;
+    window.firebaseRef = ref;
+    window.firebaseSet = set;
+    window.firebaseGet = get;
+    window.firebaseReady = true;
+    
+    console.log('✅ Firebase 초기화 성공');
+    console.log('🌐 현재 도메인:', window.location.hostname);
+  } catch(e) {
+    console.error('❌ Firebase 초기화 실패:', e);
+    window.firebaseReady = false;
+    alert('Firebase 연결 실패: ' + e.message + '\n\n로컬 저장소를 사용합니다.');
+  }
 </script>
 
 <script>
@@ -3568,18 +3577,40 @@ function saveAll(){
       하위업무: totalSubtasks
     });
     
-    // Firebase에 데이터 저장
-    const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
-    window.firebaseSet(dbRef, data).then(() => {
-      console.log('✅ Firebase 저장 완료:', new Date().toLocaleTimeString());
-      showToast('저장완료 (' + totalSubtasks + '개 하위업무)');
-    }).catch((error) => {
-      console.error('❌ Firebase 저장 오류:', error);
-      showToast('저장 실패: ' + error.message);
-    });
+    // Firebase 사용 가능 여부 확인
+    if(window.firebaseReady && window.firebaseDB) {
+      // Firebase에 데이터 저장
+      const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
+      window.firebaseSet(dbRef, data).then(() => {
+        console.log('✅ Firebase 저장 완료:', new Date().toLocaleTimeString());
+        showToast('☁️ 클라우드 저장완료');
+        // localStorage에도 백업
+        try { localStorage.setItem('kpi-backup', JSON.stringify(data)); } catch(e){}
+      }).catch((error) => {
+        console.error('❌ Firebase 저장 오류:', error);
+        // Firebase 실패 시 localStorage에 저장
+        saveToLocalStorage(data, totalSubtasks);
+      });
+    } else {
+      // Firebase 사용 불가 - localStorage 사용
+      console.warn('⚠️ Firebase 사용 불가 - localStorage 사용');
+      saveToLocalStorage(data, totalSubtasks);
+    }
   } catch(e) {
     console.error('saveAll 오류:', e);
-    showToast('저장 오류: ' + e.message);
+    showToast('❌ 저장 오류: ' + e.message);
+  }
+}
+
+// localStorage에 저장
+function saveToLocalStorage(data, totalSubtasks){
+  try {
+    localStorage.setItem('kpi-data', JSON.stringify(data));
+    console.log('💾 localStorage 저장 완료');
+    showToast('💾 로컬 저장완료 (' + totalSubtasks + '개 하위업무)');
+  } catch(e) {
+    console.error('localStorage 저장 오류:', e);
+    showToast('❌ 저장 실패');
   }
 }
 
@@ -3649,98 +3680,135 @@ function collectAllMgmtData(){
 
 async function loadData(){
   try{
+    // Firebase 사용 가능 여부 확인
+    if(!window.firebaseReady || !window.firebaseDB) {
+      console.warn('⚠️ Firebase 사용 불가 - localStorage에서 로드');
+      loadFromLocalStorage();
+      return;
+    }
+    
     const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
     const snapshot = await window.firebaseGet(dbRef);
     
     if(!snapshot.exists()) {
-      console.log('⚠️ 저장된 데이터 없음 - 기본 데이터 사용');
-      currentMgmtData = JSON.parse(JSON.stringify(DEFAULT_MGMT_DATA));
+      console.log('⚠️ Firebase에 데이터 없음 - localStorage 확인');
+      if(!loadFromLocalStorage()) {
+        console.log('⚠️ localStorage도 없음 - 기본 데이터 사용');
+        currentMgmtData = JSON.parse(JSON.stringify(DEFAULT_MGMT_DATA));
+      }
       return;
     }
     
     const d = snapshot.val();
-    console.log('📂 데이터 로드 시작:', d.ts);
+    console.log('📂 Firebase 데이터 로드:', d.ts);
+    applyLoadedData(d);
+    showToast('☁️ 클라우드에서 로드됨');
     
-    // 기본 데이터 복원
-    if(d.company) document.getElementById('company-goal').value = d.company;
-    if(d.mission) document.getElementById('team-mission').value = d.mission;
-    if(d.sales) document.getElementById('current-sales').value = d.sales;
-    
-    // 26년 활성 가동율 데이터 로드
-    if(d.grades26){
-      const g26 = d.grades26;
-      if(g26.s !== undefined) document.getElementById('grade26-s').value = g26.s;
-      if(g26.a !== undefined) document.getElementById('grade26-a').value = g26.a;
-      if(g26.b !== undefined) document.getElementById('grade26-b').value = g26.b;
-      if(g26.c !== undefined) document.getElementById('grade26-c').value = g26.c;
-      if(g26.n !== undefined) document.getElementById('grade26-n').value = g26.n;
-      if(g26.f !== undefined) document.getElementById('grade26-f').value = g26.f;
-    }
-    
-    // 메모 데이터 복원
-    if(d.memoData) memoData = d.memoData;
-    
-    // 기타업무 복원
-    if(d.etcTasks) etcTasks = d.etcTasks;
-    if(d.etcTaskCounter) etcTaskCounter = d.etcTaskCounter;
-    
-    // 카운터 복원
-    if(d.sectionCounter) sectionCounter = Math.max(sectionCounter, d.sectionCounter);
-    if(d.taskCounter) taskCounter = Math.max(taskCounter, d.taskCounter);
-    if(d.subtaskCounter) subtaskCounter = Math.max(subtaskCounter, d.subtaskCounter);
-    
-    // 관리지표 데이터 복원
-    if(d.mgmtSections && d.mgmtSections.length > 0){
-      currentMgmtData = d.mgmtSections;
-      
-      // 하위업무 개수 확인
-      let totalSubtasks = 0;
-      currentMgmtData.forEach(s => {
-        if(s.tasks) s.tasks.forEach(t => {
-          if(t.subtasks) totalSubtasks += t.subtasks.length;
-        });
-      });
-      
-      console.log('📊 관리지표 로드:', {
-        섹션: currentMgmtData.length,
-        업무: currentMgmtData.reduce((sum, s) => sum + (s.tasks?.length || 0), 0),
-        하위업무: totalSubtasks
-      });
-    } else {
-      currentMgmtData = JSON.parse(JSON.stringify(DEFAULT_MGMT_DATA));
-      console.log('⚠️ 기본 관리지표 데이터 사용');
-    }
-    
-    // 선행지표 활동 체크박스 복원
-    if(d.acts){
-      Object.keys(d.acts).forEach(key => {
-        const [kpi, a, w] = key.split('-');
-        const cb = document.querySelector(`input[data-k="${kpi}"][data-a="${a}"][data-w="${w}"]`);
-        if(cb) cb.checked = d.acts[key];
-      });
-    }
-    
-    // 트래커 체크박스 복원
-    if(d.tracker){
-      Object.keys(d.tracker).forEach(k => {
-        const cb = document.querySelector(`input[data-t="${k}"]`);
-        if(cb) cb.checked = d.tracker[k];
-      });
-    }
-    
-    // 캘린더 데이터 복원
-    if(d.calendar && Array.isArray(d.calendar)){
-      d.calendar.forEach(cal => {
-        const el = document.querySelector(`.day-check[data-cal="${cal}"]`);
-        if(el) el.classList.add('checked');
-      });
-    }
-    
-    console.log('✅ 데이터 로드 완료');
   } catch(e) {
-    console.error('❌ loadData 오류:', e);
-    currentMgmtData = JSON.parse(JSON.stringify(DEFAULT_MGMT_DATA));
+    console.error('❌ Firebase loadData 오류:', e);
+    console.log('⚠️ localStorage에서 로드 시도...');
+    if(!loadFromLocalStorage()) {
+      currentMgmtData = JSON.parse(JSON.stringify(DEFAULT_MGMT_DATA));
+    }
   }
+}
+
+// localStorage에서 로드
+function loadFromLocalStorage(){
+  try {
+    const stored = localStorage.getItem('kpi-data') || localStorage.getItem('kpi-backup');
+    if(stored) {
+      const d = JSON.parse(stored);
+      console.log('💾 localStorage 데이터 로드:', d.ts);
+      applyLoadedData(d);
+      showToast('💾 로컬에서 로드됨');
+      return true;
+    }
+    return false;
+  } catch(e) {
+    console.error('localStorage 로드 오류:', e);
+    return false;
+  }
+}
+
+// 로드된 데이터 적용
+function applyLoadedData(d){
+  // 기본 데이터 복원
+  if(d.company) document.getElementById('company-goal').value = d.company;
+  if(d.mission) document.getElementById('team-mission').value = d.mission;
+  if(d.sales) document.getElementById('current-sales').value = d.sales;
+  
+  // 26년 활성 가동율 데이터 로드
+  if(d.grades26){
+    const g26 = d.grades26;
+    if(g26.s !== undefined) document.getElementById('grade26-s').value = g26.s;
+    if(g26.a !== undefined) document.getElementById('grade26-a').value = g26.a;
+    if(g26.b !== undefined) document.getElementById('grade26-b').value = g26.b;
+    if(g26.c !== undefined) document.getElementById('grade26-c').value = g26.c;
+    if(g26.n !== undefined) document.getElementById('grade26-n').value = g26.n;
+    if(g26.f !== undefined) document.getElementById('grade26-f').value = g26.f;
+  }
+  
+  // 메모 데이터 복원
+  if(d.memoData) memoData = d.memoData;
+  
+  // 기타업무 복원
+  if(d.etcTasks) etcTasks = d.etcTasks;
+  if(d.etcTaskCounter) etcTaskCounter = d.etcTaskCounter;
+  
+  // 카운터 복원
+  if(d.sectionCounter) sectionCounter = Math.max(sectionCounter, d.sectionCounter);
+  if(d.taskCounter) taskCounter = Math.max(taskCounter, d.taskCounter);
+  if(d.subtaskCounter) subtaskCounter = Math.max(subtaskCounter, d.subtaskCounter);
+  
+  // 관리지표 데이터 복원
+  if(d.mgmtSections && d.mgmtSections.length > 0){
+    currentMgmtData = d.mgmtSections;
+    
+    // 하위업무 개수 확인
+    let totalSubtasks = 0;
+    currentMgmtData.forEach(s => {
+      if(s.tasks) s.tasks.forEach(t => {
+        if(t.subtasks) totalSubtasks += t.subtasks.length;
+      });
+    });
+    
+    console.log('📊 관리지표 로드:', {
+      섹션: currentMgmtData.length,
+      업무: currentMgmtData.reduce((sum, s) => sum + (s.tasks?.length || 0), 0),
+      하위업무: totalSubtasks
+    });
+  } else {
+    currentMgmtData = JSON.parse(JSON.stringify(DEFAULT_MGMT_DATA));
+    console.log('⚠️ 기본 관리지표 데이터 사용');
+  }
+  
+  // 선행지표 활동 체크박스 복원
+  if(d.acts){
+    Object.keys(d.acts).forEach(key => {
+      const [kpi, a, w] = key.split('-');
+      const cb = document.querySelector(`input[data-k="${kpi}"][data-a="${a}"][data-w="${w}"]`);
+      if(cb) cb.checked = d.acts[key];
+    });
+  }
+  
+  // 트래커 체크박스 복원
+  if(d.tracker){
+    Object.keys(d.tracker).forEach(k => {
+      const cb = document.querySelector(`input[data-t="${k}"]`);
+      if(cb) cb.checked = d.tracker[k];
+    });
+  }
+  
+  // 캘린더 데이터 복원
+  if(d.calendar && Array.isArray(d.calendar)){
+    d.calendar.forEach(cal => {
+      const el = document.querySelector(`.day-check[data-cal="${cal}"]`);
+      if(el) el.classList.add('checked');
+    });
+  }
+  
+  console.log('✅ 데이터 적용 완료');
 }
 
 // 관리지표 복원 (완전히 새로 작성)
