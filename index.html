@@ -185,11 +185,20 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .target-badge.n3{background:var(--kpi3)}
 .target-badge.n4{background:var(--kpi4)}
 .grade-section{background:#fff;border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+.grade-tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:2px solid var(--gray-200);padding-bottom:12px}
+.grade-tab{padding:8px 16px;border:none;background:var(--gray-100);border-radius:8px 8px 0 0;font-size:0.8rem;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all 0.2s}
+.grade-tab:hover{background:var(--gray-200)}
+.grade-tab.active{background:var(--primary);color:#fff}
+.grade-tab-content{display:none}
+.grade-tab-content.active{display:block}
 .grade-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .grade-title{font-size:1rem;font-weight:600;color:var(--gray-800)}
 .grade-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.grade-grid.ref-only{opacity:0.85}
 .grade-card{border-radius:var(--radius-lg);padding:16px;text-align:center;transition:transform 0.2s}
 .grade-card:hover{transform:translateY(-2px)}
+.grade-card.ref{cursor:default}
+.grade-card.ref:hover{transform:none}
 .grade-card.s{background:linear-gradient(135deg,#fef9c3,#fde047);border:2px solid #facc15}
 .grade-card.a{background:linear-gradient(135deg,#d1fae5,#6ee7b7);border:2px solid #34d399}
 .grade-card.b{background:linear-gradient(135deg,#e0e7ff,#a5b4fc);border:2px solid #818cf8}
@@ -208,6 +217,39 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .grade-desc{font-size:0.7rem;color:var(--gray-500);margin-top:4px}
 .grade-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;background:var(--gray-50);border-radius:var(--radius);padding:16px}
 .grade-stat{text-align:center}
+.grade-compare{margin-top:16px;padding:14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:var(--radius);border:1px solid #93c5fd}
+.grade-compare-title{font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:10px}
+.grade-compare-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.grade-compare-item{text-align:center;padding:8px;background:#fff;border-radius:6px}
+.grade-compare-item .compare-label{display:block;font-size:0.65rem;color:var(--gray-500);margin-bottom:2px}
+.grade-compare-item .compare-value{font-size:0.85rem;font-weight:700}
+.grade-compare-item .compare-value.up{color:#059669}
+.grade-compare-item .compare-value.down{color:#dc2626}
+.grade-compare-item .compare-value.same{color:#6b7280}
+.grade-ref-note{margin-top:16px;padding:12px;background:#fef3c7;border-radius:var(--radius);border:1px solid #fcd34d;font-size:0.75rem;color:#92400e;display:flex;align-items:center;gap:8px}
+.ref-icon{font-size:1rem}
+.badge-gray{background:var(--gray-400);color:#fff}
+.grade-info-box{padding:10px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:var(--radius);border:1px solid #93c5fd;font-size:0.75rem;color:#1e40af;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.info-icon{font-size:1rem}
+.grade-base{font-size:0.7rem;color:var(--gray-500);margin-top:4px}
+.grade-rate{font-size:0.85rem;font-weight:700;margin-top:6px;padding:4px 8px;background:#fff;border-radius:4px}
+.grade-card.s .grade-rate{color:#ca8a04}
+.grade-card.a .grade-rate{color:#059669}
+.grade-card.b .grade-rate{color:#4f46e5}
+.grade-card.c .grade-rate{color:#7c3aed}
+.grade-card.n .grade-rate{color:#6b7280}
+.grade-card.f .grade-rate{color:#dc2626}
+.grade-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;margin-top:16px}
+.grade-summary-item{padding:16px;border-radius:var(--radius-lg);text-align:center}
+.grade-summary-item.total{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac}
+.grade-summary-item.active{background:linear-gradient(135deg,#fef9c3,#fde047);border:2px solid #facc15}
+.grade-summary-item.dormant{background:linear-gradient(135deg,#fce7f3,#fbcfe8);border:2px solid #f9a8d4}
+.summary-label{font-size:0.75rem;color:var(--gray-600);font-weight:600;margin-bottom:6px}
+.summary-value{font-size:1.1rem;font-weight:800;color:var(--gray-800)}
+.summary-rate{font-size:1.3rem;font-weight:800;margin-top:4px}
+.grade-summary-item.total .summary-rate{color:#059669}
+.grade-summary-item.active .summary-rate{color:#ca8a04}
+.grade-summary-item.dormant .summary-rate{color:#db2777}
 .grade-stat-label{font-size:0.7rem;color:var(--gray-500);margin-bottom:4px}
 .grade-stat-value{font-size:1.5rem;font-weight:800;color:var(--gray-800)}
 .grade-stat-value.highlight{color:var(--kpi1)}
@@ -407,13 +449,16 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .subtask-body{display:none;padding:6px 8px;background:#fafafa;border-top:1px solid var(--gray-100)}
 .task-card.open .subtask-body{display:block}
 .subtask-list{display:flex;flex-direction:column;gap:4px;margin-bottom:5px;max-height:120px;overflow-y:auto}
-.subtask-item{display:flex;align-items:center;gap:4px;padding:5px 7px;background:#fff;border:1px solid var(--gray-200);border-radius:4px}
+.subtask-item{display:flex;align-items:center;gap:6px;padding:5px 7px;background:#fff;border:1px solid var(--gray-200);border-radius:4px}
 .subtask-item:hover{border-color:var(--gray-300)}
 .subtask-item.completed{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#86efac}
-.subtask-name{flex:1;font-size:0.65rem;color:var(--gray-600);border:none;background:transparent;padding:1px 3px;border-radius:2px}
+.subtask-check{width:14px;height:14px;accent-color:var(--success);cursor:pointer}
+.subtask-name{flex:1;font-size:0.68rem;color:var(--gray-600);border:none;background:transparent;padding:1px 3px;border-radius:2px}
 .subtask-name:hover{background:var(--gray-50)}
 .subtask-name:focus{outline:none;background:#fff;box-shadow:0 0 0 2px var(--primary-light)}
 .subtask-item.completed .subtask-name{text-decoration:line-through;color:var(--gray-400)}
+.subtask-del{background:none;border:none;color:var(--danger);font-size:0.7rem;cursor:pointer;opacity:0.4}
+.subtask-del:hover{opacity:1}
 .subtask-dots{display:flex;gap:1px}
 .subtask-dot{width:9px;height:9px;border-radius:2px;background:var(--gray-200);cursor:pointer}
 .subtask-dot:hover{transform:scale(1.1)}
@@ -827,27 +872,85 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </div>
 
-<!-- 25년 고객군 현황 -->
+<!-- 고객군 현황 탭 -->
 <div class="grade-section">
+<div class="grade-tabs">
+<button class="grade-tab active" onclick="showGradeTab('26')">📊 26년 활성 가동율</button>
+<button class="grade-tab" onclick="showGradeTab('25')">📋 25년 고객군 현황</button>
+</div>
+
+<!-- 26년 활성 가동율 (실시간 수정 가능) -->
+<div id="grade-tab-26" class="grade-tab-content active">
 <div class="grade-header">
-<div class="grade-title">📊 25년 고객군 현황</div>
-<span class="badge badge-red">실시간 계산</span>
+<div class="grade-title">📊 26년 활성 가동율</div>
+<span class="badge badge-red">실시간 기록</span>
+</div>
+<div class="grade-info-box">
+<span class="info-icon">💡</span> 25년 고객군 중 26년에 활성화(거래 발생)된 고객사 수를 기록하세요.
 </div>
 <div class="grade-grid">
-<div class="grade-card s"><div class="grade-label">S등급</div><div class="grade-count"><input type="number" id="grade-s" value="15" min="0" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade()"></div><div class="grade-sales">💰 76억</div><div class="grade-desc">최상</div></div>
-<div class="grade-card a"><div class="grade-label">A등급</div><div class="grade-count"><input type="number" id="grade-a" value="16" min="0" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade()"></div><div class="grade-sales">💰 13억</div><div class="grade-desc">우수</div></div>
-<div class="grade-card b"><div class="grade-label">B등급</div><div class="grade-count"><input type="number" id="grade-b" value="58" min="0" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade()"></div><div class="grade-sales">💰 31억</div><div class="grade-desc">양호</div></div>
-<div class="grade-card c"><div class="grade-label">C등급</div><div class="grade-count"><input type="number" id="grade-c" value="109" min="0" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade()"></div><div class="grade-sales">💰 4억</div><div class="grade-desc">보통</div></div>
-<div class="grade-card n"><div class="grade-label">N등급</div><div class="grade-count"><input type="number" id="grade-n" value="52" min="0" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade()"></div><div class="grade-sales">💰 16억</div><div class="grade-desc">미평가</div></div>
-<div class="grade-card f"><div class="grade-label">F등급</div><div class="grade-count"><input type="number" id="grade-f" value="10" min="0" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade()"></div><div class="grade-sales">💰 3천</div><div class="grade-desc">미흡</div></div>
+<div class="grade-card s"><div class="grade-label">S등급</div><div class="grade-count"><input type="number" id="grade26-s" value="0" min="0" max="15" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade26()"></div><div class="grade-base">/ 15개사</div><div class="grade-rate" id="grade26-s-rate">0%</div></div>
+<div class="grade-card a"><div class="grade-label">A등급</div><div class="grade-count"><input type="number" id="grade26-a" value="0" min="0" max="16" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade26()"></div><div class="grade-base">/ 16개사</div><div class="grade-rate" id="grade26-a-rate">0%</div></div>
+<div class="grade-card b"><div class="grade-label">B등급</div><div class="grade-count"><input type="number" id="grade26-b" value="0" min="0" max="58" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade26()"></div><div class="grade-base">/ 58개사</div><div class="grade-rate" id="grade26-b-rate">0%</div></div>
+<div class="grade-card c"><div class="grade-label">C등급</div><div class="grade-count"><input type="number" id="grade26-c" value="0" min="0" max="109" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade26()"></div><div class="grade-base">/ 109개사</div><div class="grade-rate" id="grade26-c-rate">0%</div></div>
+<div class="grade-card n"><div class="grade-label">N등급</div><div class="grade-count"><input type="number" id="grade26-n" value="0" min="0" max="52" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade26()"></div><div class="grade-base">/ 52개사</div><div class="grade-rate" id="grade26-n-rate">0%</div></div>
+<div class="grade-card f"><div class="grade-label">F등급</div><div class="grade-count"><input type="number" id="grade26-f" value="0" min="0" max="10" style="width:50px;border:none;background:transparent;font-size:1.3rem;font-weight:800;text-align:center" onchange="calcGrade26()"></div><div class="grade-base">/ 10개사</div><div class="grade-rate" id="grade26-f-rate">0%</div></div>
+</div>
+<div class="grade-summary">
+<div class="grade-summary-item total">
+<div class="summary-label">전체 활성화</div>
+<div class="summary-value" id="grade26-total">0 / 260개사</div>
+<div class="summary-rate" id="grade26-total-rate">0%</div>
+</div>
+<div class="grade-summary-item active">
+<div class="summary-label">S+A 활성화</div>
+<div class="summary-value" id="grade26-sa">0 / 31개사</div>
+<div class="summary-rate" id="grade26-sa-rate">0%</div>
+</div>
+<div class="grade-summary-item dormant">
+<div class="summary-label">미가동(N+F) 활성화</div>
+<div class="summary-value" id="grade26-nf">0 / 62개사</div>
+<div class="summary-rate" id="grade26-nf-rate">0%</div>
+</div>
+</div>
+<div class="grade-compare">
+<div class="grade-compare-title">📈 등급별 활성화 현황</div>
+<div class="grade-compare-grid">
+<div class="grade-compare-item" id="compare-s"><span class="compare-label">S등급</span><span class="compare-value">-</span></div>
+<div class="grade-compare-item" id="compare-a"><span class="compare-label">A등급</span><span class="compare-value">-</span></div>
+<div class="grade-compare-item" id="compare-b"><span class="compare-label">B등급</span><span class="compare-value">-</span></div>
+<div class="grade-compare-item" id="compare-c"><span class="compare-label">C등급</span><span class="compare-value">-</span></div>
+<div class="grade-compare-item" id="compare-n"><span class="compare-label">N등급</span><span class="compare-value">-</span></div>
+<div class="grade-compare-item" id="compare-f"><span class="compare-label">F등급</span><span class="compare-value">-</span></div>
+</div>
+</div>
+</div>
+
+<!-- 25년 고객군 현황 (참고자료 - 수정 불가) -->
+<div id="grade-tab-25" class="grade-tab-content">
+<div class="grade-header">
+<div class="grade-title">📋 25년 고객군 현황</div>
+<span class="badge badge-gray">참고자료 (수정 불가)</span>
+</div>
+<div class="grade-grid ref-only">
+<div class="grade-card s ref"><div class="grade-label">S등급</div><div class="grade-count"><span id="grade-s" style="font-size:1.3rem;font-weight:800">15</span></div><div class="grade-sales">💰 76억</div><div class="grade-desc">최상</div></div>
+<div class="grade-card a ref"><div class="grade-label">A등급</div><div class="grade-count"><span id="grade-a" style="font-size:1.3rem;font-weight:800">16</span></div><div class="grade-sales">💰 13억</div><div class="grade-desc">우수</div></div>
+<div class="grade-card b ref"><div class="grade-label">B등급</div><div class="grade-count"><span id="grade-b" style="font-size:1.3rem;font-weight:800">58</span></div><div class="grade-sales">💰 31억</div><div class="grade-desc">양호</div></div>
+<div class="grade-card c ref"><div class="grade-label">C등급</div><div class="grade-count"><span id="grade-c" style="font-size:1.3rem;font-weight:800">109</span></div><div class="grade-sales">💰 4억</div><div class="grade-desc">보통</div></div>
+<div class="grade-card n ref"><div class="grade-label">N등급</div><div class="grade-count"><span id="grade-n" style="font-size:1.3rem;font-weight:800">52</span></div><div class="grade-sales">💰 16억</div><div class="grade-desc">미평가</div></div>
+<div class="grade-card f ref"><div class="grade-label">F등급</div><div class="grade-count"><span id="grade-f" style="font-size:1.3rem;font-weight:800">10</span></div><div class="grade-sales">💰 3천</div><div class="grade-desc">미흡</div></div>
 </div>
 <div class="grade-stats">
-<div class="grade-stat"><div class="grade-stat-label">S등급</div><div class="grade-stat-value" id="grade-s-pct" style="color:#ca8a04">0%</div></div>
-<div class="grade-stat"><div class="grade-stat-label">A등급</div><div class="grade-stat-value" id="grade-a-pct" style="color:#059669">0%</div></div>
-<div class="grade-stat"><div class="grade-stat-label">B등급</div><div class="grade-stat-value" id="grade-b-pct" style="color:#4f46e5">0%</div></div>
-<div class="grade-stat"><div class="grade-stat-label">C등급</div><div class="grade-stat-value" id="grade-c-pct" style="color:#7c3aed">0%</div></div>
-<div class="grade-stat"><div class="grade-stat-label">N등급</div><div class="grade-stat-value" id="grade-n-pct" style="color:#6b7280">0%</div></div>
-<div class="grade-stat"><div class="grade-stat-label">F등급</div><div class="grade-stat-value" id="grade-f-pct" style="color:#dc2626">0%</div></div>
+<div class="grade-stat"><div class="grade-stat-label">S등급</div><div class="grade-stat-value" id="grade-s-pct" style="color:#ca8a04">5.8%</div></div>
+<div class="grade-stat"><div class="grade-stat-label">A등급</div><div class="grade-stat-value" id="grade-a-pct" style="color:#059669">6.2%</div></div>
+<div class="grade-stat"><div class="grade-stat-label">B등급</div><div class="grade-stat-value" id="grade-b-pct" style="color:#4f46e5">22.3%</div></div>
+<div class="grade-stat"><div class="grade-stat-label">C등급</div><div class="grade-stat-value" id="grade-c-pct" style="color:#7c3aed">41.9%</div></div>
+<div class="grade-stat"><div class="grade-stat-label">N등급</div><div class="grade-stat-value" id="grade-n-pct" style="color:#6b7280">20.0%</div></div>
+<div class="grade-stat"><div class="grade-stat-label">F등급</div><div class="grade-stat-value" id="grade-f-pct" style="color:#dc2626">3.8%</div></div>
+</div>
+<div class="grade-ref-note">
+<span class="ref-icon">ℹ️</span> 이 데이터는 25년 기준 고객군 현황입니다. 26년 활성화 현황은 '26년 활성 가동율' 탭에서 기록하세요.
+</div>
 </div>
 </div>
 
@@ -3017,29 +3120,96 @@ function calcSales(){
 }
 
 function calcGrade(){
-  const s=parseInt(document.getElementById('grade-s').value)||0;
-  const a=parseInt(document.getElementById('grade-a').value)||0;
-  const b=parseInt(document.getElementById('grade-b').value)||0;
-  const c=parseInt(document.getElementById('grade-c').value)||0;
-  const n=parseInt(document.getElementById('grade-n').value)||0;
-  const f=parseInt(document.getElementById('grade-f').value)||0;
-  const total=s+a+b+c+n+f;
+  // 25년 데이터는 고정값이므로 계산하지 않음
+}
+
+// 26년 활성 가동율 계산
+function calcGrade26(){
+  // 25년 기준 고객사 수
+  const ref25 = {s:15, a:16, b:58, c:109, n:52, f:10};
+  const total25 = 260;  // 전체 260개사
   
-  // 각 등급별 % 계산
-  const sPct=total>0?(s/total*100):0;
-  const aPct=total>0?(a/total*100):0;
-  const bPct=total>0?(b/total*100):0;
-  const cPct=total>0?(c/total*100):0;
-  const nPct=total>0?(n/total*100):0;
-  const fPct=total>0?(f/total*100):0;
+  // 26년 활성화된 고객사 수
+  const s=parseInt(document.getElementById('grade26-s').value)||0;
+  const a=parseInt(document.getElementById('grade26-a').value)||0;
+  const b=parseInt(document.getElementById('grade26-b').value)||0;
+  const c=parseInt(document.getElementById('grade26-c').value)||0;
+  const n=parseInt(document.getElementById('grade26-n').value)||0;
+  const f=parseInt(document.getElementById('grade26-f').value)||0;
   
-  document.getElementById('grade-s-pct').textContent=sPct.toFixed(1)+'%';
-  document.getElementById('grade-a-pct').textContent=aPct.toFixed(1)+'%';
-  document.getElementById('grade-b-pct').textContent=bPct.toFixed(1)+'%';
-  document.getElementById('grade-c-pct').textContent=cPct.toFixed(1)+'%';
-  document.getElementById('grade-n-pct').textContent=nPct.toFixed(1)+'%';
-  document.getElementById('grade-f-pct').textContent=fPct.toFixed(1)+'%';
+  // 각 등급별 활성화율 계산
+  const sRate = ref25.s > 0 ? (s / ref25.s * 100) : 0;
+  const aRate = ref25.a > 0 ? (a / ref25.a * 100) : 0;
+  const bRate = ref25.b > 0 ? (b / ref25.b * 100) : 0;
+  const cRate = ref25.c > 0 ? (c / ref25.c * 100) : 0;
+  const nRate = ref25.n > 0 ? (n / ref25.n * 100) : 0;
+  const fRate = ref25.f > 0 ? (f / ref25.f * 100) : 0;
+  
+  // 등급별 활성화율 표시
+  document.getElementById('grade26-s-rate').textContent = sRate.toFixed(1) + '%';
+  document.getElementById('grade26-a-rate').textContent = aRate.toFixed(1) + '%';
+  document.getElementById('grade26-b-rate').textContent = bRate.toFixed(1) + '%';
+  document.getElementById('grade26-c-rate').textContent = cRate.toFixed(1) + '%';
+  document.getElementById('grade26-n-rate').textContent = nRate.toFixed(1) + '%';
+  document.getElementById('grade26-f-rate').textContent = fRate.toFixed(1) + '%';
+  
+  // 전체 활성화
+  const totalActive = s + a + b + c + n + f;
+  const totalRate = total25 > 0 ? (totalActive / total25 * 100) : 0;
+  document.getElementById('grade26-total').textContent = totalActive + ' / ' + total25 + '개사';
+  document.getElementById('grade26-total-rate').textContent = totalRate.toFixed(1) + '%';
+  
+  // S+A 활성화
+  const saTotal = ref25.s + ref25.a;  // 31개사
+  const saActive = s + a;
+  const saRate = saTotal > 0 ? (saActive / saTotal * 100) : 0;
+  document.getElementById('grade26-sa').textContent = saActive + ' / ' + saTotal + '개사';
+  document.getElementById('grade26-sa-rate').textContent = saRate.toFixed(1) + '%';
+  
+  // 미가동(N+F) 활성화
+  const nfTotal = ref25.n + ref25.f;  // 62개사
+  const nfActive = n + f;
+  const nfRate = nfTotal > 0 ? (nfActive / nfTotal * 100) : 0;
+  document.getElementById('grade26-nf').textContent = nfActive + ' / ' + nfTotal + '개사';
+  document.getElementById('grade26-nf-rate').textContent = nfRate.toFixed(1) + '%';
+  
+  // 등급별 활성화 현황 표시 (비교 영역)
+  updateCompare('s', s, ref25.s);
+  updateCompare('a', a, ref25.a);
+  updateCompare('b', b, ref25.b);
+  updateCompare('c', c, ref25.c);
+  updateCompare('n', n, ref25.n);
+  updateCompare('f', f, ref25.f);
+  
   autoSave();
+}
+
+// 등급별 활성화 현황 표시
+function updateCompare(grade, active, total){
+  const el = document.getElementById('compare-' + grade);
+  if(!el) return;
+  
+  const rate = total > 0 ? (active / total * 100) : 0;
+  const valueEl = el.querySelector('.compare-value');
+  
+  valueEl.textContent = active + '/' + total + ' (' + rate.toFixed(0) + '%)';
+  
+  if(rate >= 80){
+    valueEl.className = 'compare-value up';
+  } else if(rate >= 50){
+    valueEl.className = 'compare-value same';
+  } else {
+    valueEl.className = 'compare-value down';
+  }
+}
+
+// 고객군 현황 탭 전환
+function showGradeTab(year){
+  document.querySelectorAll('.grade-tab').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.grade-tab-content').forEach(content => content.classList.remove('active'));
+  
+  document.querySelector(`.grade-tab[onclick="showGradeTab('${year}')"]`).classList.add('active');
+  document.getElementById('grade-tab-' + year).classList.add('active');
 }
 
 function calcAct(k){
@@ -3193,12 +3363,21 @@ function saveAll(){
     company:document.getElementById('company-goal')?.value||'',
     mission:document.getElementById('team-mission')?.value||'',
     sales:document.getElementById('current-sales')?.value||0,
-    grades:{s:document.getElementById('grade-s')?.value||0,a:document.getElementById('grade-a')?.value||0,b:document.getElementById('grade-b')?.value||0,c:document.getElementById('grade-c')?.value||0,n:document.getElementById('grade-n')?.value||0,f:document.getElementById('grade-f')?.value||0},
-    acts:{},tracker:{},tasks:{1:[],2:[],3:[],4:[]},
+    grades:{s:15,a:16,b:58,c:109,n:52,f:10},  // 25년 고정값
+    grades26:{
+      s:parseInt(document.getElementById('grade26-s')?.value)||0,
+      a:parseInt(document.getElementById('grade26-a')?.value)||0,
+      b:parseInt(document.getElementById('grade26-b')?.value)||0,
+      c:parseInt(document.getElementById('grade26-c')?.value)||0,
+      n:parseInt(document.getElementById('grade26-n')?.value)||0,
+      f:parseInt(document.getElementById('grade26-f')?.value)||0
+    },
+    acts:{},
+    tracker:{},
     memoData:memoData,
     etcTasks:etcTasks,
     etcTaskCounter:etcTaskCounter,
-    // 새 관리지표 구조 저장
+    // 관리지표 구조 저장
     mgmtSections:[],
     sectionCounter:sectionCounter,
     taskCounter:taskCounter,
@@ -3206,7 +3385,7 @@ function saveAll(){
     calendar:[]
   };
   
-  // 새 관리지표 저장
+  // 관리지표 저장 (섹션 > 업무 > 하위업무)
   document.querySelectorAll('.mgmt-section').forEach(section => {
     const kpi = section.closest('.mgmt-container')?.dataset.kpi;
     const sectionData = {
@@ -3223,15 +3402,19 @@ function saveAll(){
         name: task.querySelector('.task-name')?.value || '',
         assignee: task.querySelector('.task-assignee')?.value || 'ja',
         progress: parseInt(task.dataset.progress) || 0,
+        open: task.classList.contains('open'),
         subtasks: []
       };
       
+      // 하위업무 저장
       task.querySelectorAll('.subtask-item').forEach(st => {
-        taskData.subtasks.push({
+        const subtaskData = {
           id: st.dataset.subtaskId,
           name: st.querySelector('.subtask-name')?.value || '',
+          checked: st.querySelector('.subtask-check')?.checked || false,
           progress: parseInt(st.dataset.progress) || 0
-        });
+        };
+        taskData.subtasks.push(subtaskData);
       });
       
       sectionData.tasks.push(taskData);
@@ -3240,16 +3423,26 @@ function saveAll(){
     data.mgmtSections.push(sectionData);
   });
   
-  // 활동 체크박스
-  document.querySelectorAll('input[data-k]').forEach(cb=>{data.acts[`${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`]=cb.checked;});
-  // 트래커 체크박스
-  document.querySelectorAll('input[data-t]').forEach(cb=>{data.tracker[cb.dataset.t]=cb.checked;});
-  // 캘린더 체크박스
-  document.querySelectorAll('.day-check.checked').forEach(el=>{data.calendar.push(el.dataset.cal);});
+  // 선행지표 활동 체크박스 저장
+  document.querySelectorAll('input[data-k][data-a][data-w]').forEach(cb=>{
+    const key = `${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`;
+    data.acts[key] = cb.checked;
+  });
+  
+  // 트래커 체크박스 저장
+  document.querySelectorAll('input[data-t]').forEach(cb=>{
+    data.tracker[cb.dataset.t] = cb.checked;
+  });
+  
+  // 캘린더 체크박스 저장
+  document.querySelectorAll('.day-check.checked').forEach(el=>{
+    data.calendar.push(el.dataset.cal);
+  });
   
   // Firebase에 데이터 저장
   const dbRef = window.firebaseRef(window.firebaseDB, 'kpi-data');
   window.firebaseSet(dbRef, data).then(() => {
+    console.log('저장 완료:', new Date().toLocaleTimeString());
     showToast('저장완료');
   }).catch((error) => {
     console.error('Firebase 저장 오류:', error);
@@ -3264,16 +3457,23 @@ async function loadData(){
     const snapshot = await window.firebaseGet(dbRef);
     if(!snapshot.exists())return;
     const d = snapshot.val();
+    
+    console.log('데이터 로드:', d.ts);
+    
     if(d.company)document.getElementById('company-goal').value=d.company;
     if(d.mission)document.getElementById('team-mission').value=d.mission;
     if(d.sales)document.getElementById('current-sales').value=d.sales;
-    if(d.grades){
-      if(d.grades.s)document.getElementById('grade-s').value=d.grades.s;
-      if(d.grades.a)document.getElementById('grade-a').value=d.grades.a;
-      if(d.grades.b)document.getElementById('grade-b').value=d.grades.b;
-      if(d.grades.c)document.getElementById('grade-c').value=d.grades.c;
-      if(d.grades.n)document.getElementById('grade-n').value=d.grades.n;
-      if(d.grades.f)document.getElementById('grade-f').value=d.grades.f;
+    // 25년 데이터는 고정값이므로 로드하지 않음
+    
+    // 26년 고객군 데이터 로드
+    if(d.grades26){
+      if(d.grades26.s !== undefined) document.getElementById('grade26-s').value=d.grades26.s;
+      if(d.grades26.a !== undefined) document.getElementById('grade26-a').value=d.grades26.a;
+      if(d.grades26.b !== undefined) document.getElementById('grade26-b').value=d.grades26.b;
+      if(d.grades26.c !== undefined) document.getElementById('grade26-c').value=d.grades26.c;
+      if(d.grades26.n !== undefined) document.getElementById('grade26-n').value=d.grades26.n;
+      if(d.grades26.f !== undefined) document.getElementById('grade26-f').value=d.grades26.f;
+      calcGrade26();
     }
     if(d.memoData){
       memoData=d.memoData;
@@ -3290,13 +3490,32 @@ async function loadData(){
     if(d.taskCounter) taskCounter = d.taskCounter;
     if(d.subtaskCounter) subtaskCounter = d.subtaskCounter;
     
-    // 새 관리지표 복원
+    // 관리지표 복원
     if(d.mgmtSections && d.mgmtSections.length > 0){
       restoreMgmtSections(d.mgmtSections);
     }
     
-    if(d.acts)Object.keys(d.acts).forEach(k=>{const[kpi,a,w]=k.split('-');const cb=document.querySelector(`input[data-k="${kpi}"][data-a="${a}"][data-w="${w}"]`);if(cb)cb.checked=d.acts[k];});
-    if(d.tracker)Object.keys(d.tracker).forEach(k=>{const cb=document.querySelector(`input[data-t="${k}"]`);if(cb)cb.checked=d.tracker[k];});
+    // 선행지표 활동 체크박스 복원
+    if(d.acts){
+      Object.keys(d.acts).forEach(key => {
+        const [kpi, a, w] = key.split('-');
+        const cb = document.querySelector(`input[data-k="${kpi}"][data-a="${a}"][data-w="${w}"]`);
+        if(cb){
+          cb.checked = d.acts[key];
+        }
+      });
+      // 활동 추적 계산
+      [1,2,3,4].forEach(kpi => calcAct(kpi));
+    }
+    
+    // 트래커 체크박스 복원
+    if(d.tracker){
+      Object.keys(d.tracker).forEach(k => {
+        const cb = document.querySelector(`input[data-t="${k}"]`);
+        if(cb) cb.checked = d.tracker[k];
+      });
+    }
+    
     // 캘린더 데이터 복원
     if(d.calendar){
       d.calendar.forEach(cal=>{
@@ -3306,13 +3525,46 @@ async function loadData(){
       calcCalendar();
     }
     calcSales();calcGrade();
-  }catch(e){console.error(e);}
+    
+    console.log('데이터 로드 완료');
+  }catch(e){console.error('로드 오류:', e);}
 }
 
-// 새 관리지표 복원
+// 관리지표 복원
 function restoreMgmtSections(sections){
   sections.forEach(sectionData => {
-    const section = document.querySelector(`[data-section-id="${sectionData.id}"]`);
+    let section = document.querySelector(`[data-section-id="${sectionData.id}"]`);
+    
+    // 섹션이 없으면 새로 생성
+    if(!section && sectionData.kpi){
+      const container = document.getElementById(`mgmt-container-${sectionData.kpi}`);
+      if(container){
+        const addBtn = container.querySelector('.add-section-btn');
+        const kpiClass = 'k' + sectionData.kpi;
+        
+        const newSection = document.createElement('div');
+        newSection.className = 'mgmt-section' + (sectionData.open ? ' open' : '');
+        newSection.dataset.sectionId = sectionData.id;
+        newSection.innerHTML = `
+          <div class="mgmt-header ${kpiClass}" onclick="toggleSection(this)">
+            <span class="mgmt-expand">▶</span>
+            <input type="text" class="mgmt-title-input" value="${sectionData.title || ''}" onclick="event.stopPropagation()" onchange="autoSave()">
+            <div class="mgmt-progress">
+              <div class="mgmt-progress-bar"><div class="mgmt-progress-fill ${kpiClass}" style="width:0%"></div></div>
+              <span class="mgmt-progress-text ${kpiClass}">0%</span>
+            </div>
+            <button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+          </div>
+          <div class="mgmt-body">
+            <div class="task-list"></div>
+            <button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+          </div>
+        `;
+        container.insertBefore(newSection, addBtn);
+        section = newSection;
+      }
+    }
+    
     if(section){
       // 제목 복원
       const titleInput = section.querySelector('.mgmt-title-input');
@@ -3325,10 +3577,49 @@ function restoreMgmtSections(sections){
         section.classList.remove('open');
       }
       
+      const taskList = section.querySelector('.task-list');
+      
       // 업무 복원
       sectionData.tasks.forEach(taskData => {
-        const task = section.querySelector(`[data-task-id="${taskData.id}"]`);
+        let task = section.querySelector(`[data-task-id="${taskData.id}"]`);
+        
+        // 업무가 없으면 새로 생성
+        if(!task && taskList){
+          const kpi = sectionData.kpi;
+          task = document.createElement('div');
+          task.className = 'task-card' + (taskData.progress >= 100 ? ' completed' : '');
+          task.dataset.taskId = taskData.id;
+          task.dataset.progress = taskData.progress || 0;
+          task.dataset.assignee = taskData.assignee || 'ja';
+          task.innerHTML = `
+            <div class="task-header" onclick="toggleTask(this)">
+              <span class="task-expand">▶</span>
+              <input type="text" class="task-name" value="${taskData.name || ''}" onclick="event.stopPropagation()" onchange="autoSave()">
+              <select class="task-assignee ${taskData.assignee || 'ja'}" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+                <option value="ja" ${taskData.assignee==='ja'?'selected':''}>정아</option>
+                <option value="yr" ${taskData.assignee==='yr'?'selected':''}>지연</option>
+                <option value="sj" ${taskData.assignee==='sj'?'selected':''}>수진</option>
+              </select>
+              <div class="progress-bar-wrap" onclick="event.stopPropagation()">
+                <div class="progress-dots" data-kpi="${kpi}"></div>
+                <span class="task-pct">${taskData.progress || 0}%</span>
+              </div>
+              <button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+              <button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+            </div>
+            <div class="subtask-body">
+              <div class="subtask-list"></div>
+              <div class="add-row">
+                <input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+                <button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+              </div>
+            </div>
+          `;
+          taskList.appendChild(task);
+        }
+        
         if(task){
+          // 업무 데이터 복원
           const nameInput = task.querySelector('.task-name');
           if(nameInput && taskData.name) nameInput.value = taskData.name;
           
@@ -3340,8 +3631,40 @@ function restoreMgmtSections(sections){
           
           task.dataset.progress = taskData.progress || 0;
           if(taskData.progress >= 100) task.classList.add('completed');
+          if(taskData.open) task.classList.add('open');
           
-          // 하위업무 복원은 renderSubtasks에서 처리
+          // 하위업무 복원
+          if(taskData.subtasks && taskData.subtasks.length > 0){
+            const subtaskList = task.querySelector('.subtask-list');
+            if(subtaskList){
+              taskData.subtasks.forEach(subData => {
+                let subtask = subtaskList.querySelector(`[data-subtask-id="${subData.id}"]`);
+                
+                // 하위업무가 없으면 새로 생성
+                if(!subtask){
+                  subtask = document.createElement('div');
+                  subtask.className = 'subtask-item' + (subData.checked ? ' completed' : '');
+                  subtask.dataset.subtaskId = subData.id;
+                  subtask.dataset.progress = subData.progress || 0;
+                  subtask.innerHTML = `
+                    <input type="checkbox" class="subtask-check" ${subData.checked ? 'checked' : ''} onchange="toggleSubtaskCheck(this)">
+                    <input type="text" class="subtask-name" value="${subData.name || ''}" onchange="autoSave()">
+                    <button class="subtask-del" onclick="deleteSubtask(this)">×</button>
+                  `;
+                  subtaskList.appendChild(subtask);
+                } else {
+                  // 기존 하위업무 업데이트
+                  const subName = subtask.querySelector('.subtask-name');
+                  if(subName && subData.name) subName.value = subData.name;
+                  
+                  const subCheck = subtask.querySelector('.subtask-check');
+                  if(subCheck) subCheck.checked = subData.checked || false;
+                  
+                  if(subData.checked) subtask.classList.add('completed');
+                }
+              });
+            }
+          }
         }
       });
     }
@@ -3741,17 +4064,76 @@ function addSubtask(input){
   subtask.dataset.subtaskId = subtaskId;
   subtask.dataset.progress = '0';
   subtask.innerHTML = `
+    <input type="checkbox" class="subtask-check" onchange="toggleSubtaskCheck(this)">
     <input type="text" class="subtask-name" value="${title}" onchange="autoSave()">
-    <div class="subtask-dots" data-kpi="${kpi}"></div>
-    <span class="subtask-pct">0%</span>
-    <button class="subtask-memo" onclick="openSubtaskMemo(this)">📝</button>
     <button class="subtask-del" onclick="deleteSubtask(this)">×</button>
   `;
   
   subtaskList.appendChild(subtask);
-  initSubtaskDots(subtask, kpi);
   input.value = '';
+  
+  // 업무 진행률 업데이트
+  updateTaskProgressFromSubtasks(taskCard);
+  updateSectionProgress(section);
   autoSave();
+}
+
+// 하위업무 체크박스 토글
+function toggleSubtaskCheck(checkbox){
+  const subtaskItem = checkbox.closest('.subtask-item');
+  const taskCard = checkbox.closest('.task-card');
+  const section = checkbox.closest('.mgmt-section');
+  
+  if(checkbox.checked){
+    subtaskItem.classList.add('completed');
+    subtaskItem.dataset.progress = '100';
+  } else {
+    subtaskItem.classList.remove('completed');
+    subtaskItem.dataset.progress = '0';
+  }
+  
+  // 업무 진행률 자동 계산
+  updateTaskProgressFromSubtasks(taskCard);
+  updateSectionProgress(section);
+  updateTeamOverview();
+  autoSave();
+}
+
+// 하위업무 기반 업무 진행률 계산
+function updateTaskProgressFromSubtasks(taskCard){
+  const subtasks = taskCard.querySelectorAll('.subtask-item');
+  if(subtasks.length === 0) return;
+  
+  let completed = 0;
+  subtasks.forEach(st => {
+    if(st.classList.contains('completed') || st.querySelector('.subtask-check')?.checked){
+      completed++;
+    }
+  });
+  
+  const progress = Math.round((completed / subtasks.length) * 100);
+  taskCard.dataset.progress = progress;
+  
+  // 진행률 표시 업데이트
+  const pctEl = taskCard.querySelector('.task-pct');
+  if(pctEl) pctEl.textContent = progress + '%';
+  
+  // 완료 상태 업데이트
+  if(progress >= 100){
+    taskCard.classList.add('completed');
+  } else {
+    taskCard.classList.remove('completed');
+  }
+  
+  // 도트 업데이트
+  const dots = taskCard.querySelectorAll('.progress-dot');
+  dots.forEach((dot, i) => {
+    if((i + 1) * 10 <= progress){
+      dot.classList.add('filled');
+    } else {
+      dot.classList.remove('filled');
+    }
+  });
 }
 
 // 진행률 도트 초기화 - 업무
