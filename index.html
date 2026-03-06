@@ -3556,14 +3556,18 @@ function saveAll(){
     };
     
     // 선행지표 활동 체크박스 저장
+    let actsChecked = 0;
     document.querySelectorAll('input[data-k][data-a][data-w]').forEach(cb=>{
       const key = `${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`;
       data.acts[key] = cb.checked;
+      if(cb.checked) actsChecked++;
     });
     
     // 트래커 체크박스 저장
+    let trackerChecked = 0;
     document.querySelectorAll('input[data-t]').forEach(cb=>{
       data.tracker[cb.dataset.t] = cb.checked;
+      if(cb.checked) trackerChecked++;
     });
     
     // 캘린더 체크박스 저장
@@ -3574,7 +3578,10 @@ function saveAll(){
     console.log('💾 저장 준비:', {
       섹션: currentMgmtData.length,
       업무: currentMgmtData.reduce((sum, s) => sum + (s.tasks?.length || 0), 0),
-      하위업무: totalSubtasks
+      하위업무: totalSubtasks,
+      선행지표: actsChecked,
+      트래커: trackerChecked,
+      캘린더: data.calendar.length
     });
     
     // Firebase 사용 가능 여부 확인
@@ -3785,19 +3792,31 @@ function applyLoadedData(d){
   
   // 선행지표 활동 체크박스 복원
   if(d.acts){
+    let actsCount = 0;
     Object.keys(d.acts).forEach(key => {
       const [kpi, a, w] = key.split('-');
       const cb = document.querySelector(`input[data-k="${kpi}"][data-a="${a}"][data-w="${w}"]`);
-      if(cb) cb.checked = d.acts[key];
+      if(cb) {
+        cb.checked = d.acts[key];
+        if(d.acts[key]) actsCount++;
+      }
     });
+    console.log('📋 선행지표 활동 복원:', actsCount + '개 체크됨');
+    // calcAct 호출하여 UI 업데이트
+    [1,2,3,4].forEach(k => calcAct(k));
   }
   
   // 트래커 체크박스 복원
   if(d.tracker){
+    let trackerCount = 0;
     Object.keys(d.tracker).forEach(k => {
       const cb = document.querySelector(`input[data-t="${k}"]`);
-      if(cb) cb.checked = d.tracker[k];
+      if(cb) {
+        cb.checked = d.tracker[k];
+        if(d.tracker[k]) trackerCount++;
+      }
     });
+    console.log('📊 트래커 복원:', trackerCount + '개 체크됨');
   }
   
   // 캘린더 데이터 복원
@@ -3806,6 +3825,8 @@ function applyLoadedData(d){
       const el = document.querySelector(`.day-check[data-cal="${cal}"]`);
       if(el) el.classList.add('checked');
     });
+    console.log('📅 캘린더 복원:', d.calendar.length + '일 체크됨');
+    calcCalendar();
   }
   
   console.log('✅ 데이터 적용 완료');
