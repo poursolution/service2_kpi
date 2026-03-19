@@ -3487,10 +3487,55 @@ function autoSave(){
   window.saveTimeout = setTimeout(saveAll, 300);
 }
 
-// 페이지 종료 시 미저장 데이터 즉시 저장
+// 페이지 종료 시 미저장 데이터 즉시 localStorage에 저장 (Firebase는 비동기라 종료 전 완료 불가)
 window.addEventListener('beforeunload', function(){
   clearTimeout(window.saveTimeout);
-  saveAll();
+  try {
+    collectAllMgmtData();
+    let totalSubtasks = 0;
+    currentMgmtData.forEach(s => {
+      if(s.tasks) s.tasks.forEach(t => {
+        if(t.subtasks) totalSubtasks += t.subtasks.length;
+      });
+    });
+    const data={
+      ts:new Date().toISOString(),
+      company:document.getElementById('company-goal')?.value||'',
+      mission:document.getElementById('team-mission')?.value||'',
+      sales:document.getElementById('current-sales')?.value||0,
+      grades:{s:15,a:16,b:58,c:109,n:52,f:10},
+      grades26:{
+        s:parseInt(document.getElementById('grade26-s')?.value)||0,
+        a:parseInt(document.getElementById('grade26-a')?.value)||0,
+        b:parseInt(document.getElementById('grade26-b')?.value)||0,
+        c:parseInt(document.getElementById('grade26-c')?.value)||0,
+        n:parseInt(document.getElementById('grade26-n')?.value)||0,
+        f:parseInt(document.getElementById('grade26-f')?.value)||0
+      },
+      acts:{},tracker:{},
+      memoData:memoData,
+      etcTasks:etcTasks,
+      etcTaskCounter:etcTaskCounter,
+      mgmtSections:currentMgmtData,
+      sectionCounter:sectionCounter,
+      taskCounter:taskCounter,
+      subtaskCounter:subtaskCounter,
+      calendar:[]
+    };
+    document.querySelectorAll('input[data-k][data-a][data-w]').forEach(cb=>{
+      data.acts[`${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`]=cb.checked;
+    });
+    document.querySelectorAll('input[data-t]').forEach(cb=>{
+      data.tracker[cb.dataset.t]=cb.checked;
+    });
+    document.querySelectorAll('.day-check.checked').forEach(el=>{
+      if(el.dataset.cal) data.calendar.push(el.dataset.cal);
+    });
+    localStorage.setItem('kpi-data', JSON.stringify(data));
+    localStorage.setItem('kpi-backup', JSON.stringify(data));
+  } catch(e) {
+    console.error('beforeunload 저장 오류:', e);
+  }
 });
 
 function saveAll(){
@@ -3568,8 +3613,11 @@ function saveAll(){
       window.firebaseSet(dbRef, data).then(() => {
         console.log('✅ Firebase 저장 완료:', new Date().toLocaleTimeString());
         showToast('☁️ 클라우드 저장완료');
-        // localStorage에도 백업
-        try { localStorage.setItem('kpi-backup', JSON.stringify(data)); } catch(e){}
+        // localStorage에도 백업 (kpi-data와 kpi-backup 모두)
+        try {
+          localStorage.setItem('kpi-data', JSON.stringify(data));
+          localStorage.setItem('kpi-backup', JSON.stringify(data));
+        } catch(e){}
       }).catch((error) => {
         console.error('❌ Firebase 저장 오류:', error);
         // Firebase 실패 시 localStorage에 저장
@@ -4459,11 +4507,14 @@ function updateTaskProgressFromSubtasks(taskCard){
 function initProgressDots(taskCard, kpi){
   const dotsWrap = taskCard.querySelector('.progress-dots');
   if(!dotsWrap) return;
-  
+
+  const currentProgress = parseInt(taskCard.dataset.progress) || 0;
+
   dotsWrap.innerHTML = '';
   for(let i = 1; i <= 10; i++){
     const dot = document.createElement('span');
     dot.className = 'progress-dot k' + kpi;
+    if(i * 10 <= currentProgress) dot.classList.add('filled');
     dot.dataset.val = i * 10;
     dot.onclick = function(e){ e.stopPropagation(); setTaskProgress(this, i * 10); };
     dotsWrap.appendChild(dot);
@@ -4474,11 +4525,14 @@ function initProgressDots(taskCard, kpi){
 function initSubtaskDots(subtaskItem, kpi){
   const dotsWrap = subtaskItem.querySelector('.subtask-dots');
   if(!dotsWrap) return;
-  
+
+  const currentProgress = parseInt(subtaskItem.dataset.progress) || 0;
+
   dotsWrap.innerHTML = '';
   for(let i = 1; i <= 10; i++){
     const dot = document.createElement('span');
     dot.className = 'subtask-dot';
+    if(i * 10 <= currentProgress) dot.classList.add('filled');
     dot.dataset.val = i * 10;
     dot.onclick = function(){ setSubtaskProgress(this, i * 10); };
     dotsWrap.appendChild(dot);
@@ -4906,12 +4960,25 @@ function initNewMgmtSystem(){
   updateTeamOverview();
 }
 
-// Firebase가 준비될 때까지 기다린 후 초기화
+// Firebase가 준비될 때까지 기다린 후 초기화 (최대 3초)
+let firebaseWaitCount = 0;
 function waitForFirebase() {
-  if (window.firebaseReady) {
+  if (window.firebaseReady === true) {
+    init();
+  } else if (window.firebaseReady === false) {
+    // Firebase 초기화 실패 - localStorage 모드로 즉시 시작
+    console.warn('⚠️ Firebase 사용 불가 - localStorage 모드로 시작');
     init();
   } else {
-    setTimeout(waitForFirebase, 50);
+    firebaseWaitCount++;
+    if(firebaseWaitCount > 60) {
+      // 3초(50ms * 60) 초과 - 타임아웃, localStorage 모드로 시작
+      console.warn('⚠️ Firebase 준비 타임아웃 - localStorage 모드로 시작');
+      window.firebaseReady = false;
+      init();
+    } else {
+      setTimeout(waitForFirebase, 50);
+    }
   }
 }
 waitForFirebase();
