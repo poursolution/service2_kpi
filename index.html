@@ -959,187 +959,7 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 <div class="section-header"><div class="section-title">📋 관리지표 (핵심과제) <span class="badge badge-blue">클릭하여 세부항목 확인 · 추가/삭제 가능</span></div></div>
 <div class="mgmt-container" id="mgmt-container-1" data-kpi="1">
 
-<!-- 대제목 1: 현장 판단 기준자료 구성 및 배포 -->
-<div class="mgmt-section open" data-section-id="s1-1">
-<div class="mgmt-header k1" onclick="toggleSection(this)">
-<span class="mgmt-expand">▶</span>
-<input type="text" class="mgmt-title-input" value="📑 현장 판단 기준자료 구성 및 배포" onclick="event.stopPropagation()" onchange="autoSave()">
-<div class="mgmt-progress">
-<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
-<span class="mgmt-progress-text k1">0%</span>
-</div>
-<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
-</div>
-<div class="mgmt-body">
-<div class="task-list"></div>
-<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
-</div>
-</div>
-
-<!-- 대제목 2: 체크리스트 배포 -->
-<div class="mgmt-section open" data-section-id="s1-2">
-<div class="mgmt-header k1" onclick="toggleSection(this)">
-<span class="mgmt-expand">▶</span>
-<input type="text" class="mgmt-title-input" value="📋 체크리스트 배포" onclick="event.stopPropagation()" onchange="autoSave()">
-<div class="mgmt-progress">
-<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
-<span class="mgmt-progress-text k1">0%</span>
-</div>
-<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
-</div>
-<div class="mgmt-body">
-<div class="task-list">
-<div class="task-card" data-task-id="t1-2-1" data-progress="0" data-assignee="ja">
-<div class="task-header" onclick="toggleTask(this)">
-<span class="task-expand">▶</span>
-<input type="text" class="task-name" value="물량별 평균 공사일수" onclick="event.stopPropagation()" onchange="autoSave()">
-<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
-<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
-</select>
-<div class="progress-bar-wrap" onclick="event.stopPropagation()">
-<div class="progress-dots" data-kpi="1"></div>
-<span class="task-pct">0%</span>
-</div>
-<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
-<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
-</div>
-<div class="subtask-body">
-<div class="subtask-list"></div>
-<div class="add-row">
-<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
-<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
-</div>
-</div>
-</div>
-<div class="task-card" data-task-id="t1-2-2" data-progress="0" data-assignee="ja">
-<div class="task-header" onclick="toggleTask(this)">
-<span class="task-expand">▶</span>
-<input type="text" class="task-name" value="현장 필수 체크사항" onclick="event.stopPropagation()" onchange="autoSave()">
-<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
-<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
-</select>
-<div class="progress-bar-wrap" onclick="event.stopPropagation()">
-<div class="progress-dots" data-kpi="1"></div>
-<span class="task-pct">0%</span>
-</div>
-<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
-<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
-</div>
-<div class="subtask-body">
-<div class="subtask-list"></div>
-<div class="add-row">
-<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
-<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
-</div>
-</div>
-</div>
-<div class="task-card" data-task-id="t1-2-3" data-progress="0" data-assignee="ja">
-<div class="task-header" onclick="toggleTask(this)">
-<span class="task-expand">▶</span>
-<input type="text" class="task-name" value="관리주체 주요 질문 응대멘트" onclick="event.stopPropagation()" onchange="autoSave()">
-<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
-<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
-</select>
-<div class="progress-bar-wrap" onclick="event.stopPropagation()">
-<div class="progress-dots" data-kpi="1"></div>
-<span class="task-pct">0%</span>
-</div>
-<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
-<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
-</div>
-<div class="subtask-body">
-<div class="subtask-list"></div>
-<div class="add-row">
-<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
-<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
-</div>
-</div>
-</div>
-</div>
-<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
-</div>
-</div>
-
-<!-- 대제목 3: 공법 기준표 제공 -->
-<div class="mgmt-section open" data-section-id="s1-3">
-<div class="mgmt-header k1" onclick="toggleSection(this)">
-<span class="mgmt-expand">▶</span>
-<input type="text" class="mgmt-title-input" value="📊 공법 기준표 제공" onclick="event.stopPropagation()" onchange="autoSave()">
-<div class="mgmt-progress">
-<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
-<span class="mgmt-progress-text k1">0%</span>
-</div>
-<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
-</div>
-<div class="mgmt-body">
-<div class="task-list"></div>
-<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
-</div>
-</div>
-
-<!-- 대제목 4: 미가동 고객사 추적 -->
-<div class="mgmt-section open" data-section-id="s1-4">
-<div class="mgmt-header k1" onclick="toggleSection(this)">
-<span class="mgmt-expand">▶</span>
-<input type="text" class="mgmt-title-input" value="🔄 미가동 고객사 추적" onclick="event.stopPropagation()" onchange="autoSave()">
-<div class="mgmt-progress">
-<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
-<span class="mgmt-progress-text k1">0%</span>
-</div>
-<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
-</div>
-<div class="mgmt-body">
-<div class="task-list">
-<div class="task-card" data-task-id="t1-4-1" data-progress="0" data-assignee="ja">
-<div class="task-header" onclick="toggleTask(this)">
-<span class="task-expand">▶</span>
-<input type="text" class="task-name" value="자료 우편발송" onclick="event.stopPropagation()" onchange="autoSave()">
-<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
-<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
-</select>
-<div class="progress-bar-wrap" onclick="event.stopPropagation()">
-<div class="progress-dots" data-kpi="1"></div>
-<span class="task-pct">0%</span>
-</div>
-<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
-<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
-</div>
-<div class="subtask-body">
-<div class="subtask-list"></div>
-<div class="add-row">
-<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
-<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
-</div>
-</div>
-</div>
-<div class="task-card" data-task-id="t1-4-2" data-progress="0" data-assignee="ja">
-<div class="task-header" onclick="toggleTask(this)">
-<span class="task-expand">▶</span>
-<input type="text" class="task-name" value="세미나 독려" onclick="event.stopPropagation()" onchange="autoSave()">
-<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
-<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
-</select>
-<div class="progress-bar-wrap" onclick="event.stopPropagation()">
-<div class="progress-dots" data-kpi="1"></div>
-<span class="task-pct">0%</span>
-</div>
-<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
-<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
-</div>
-<div class="subtask-body">
-<div class="subtask-list"></div>
-<div class="add-row">
-<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
-<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
-</div>
-</div>
-</div>
-</div>
-<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
-</div>
-</div>
-
-<!-- 대제목 5: 현장운영 대시보드 구축 -->
+<!-- 대제목 1: 현장운영 대시보드 구축 (최상단 배치) -->
 <div class="mgmt-section open" data-section-id="s1-5">
 <div class="mgmt-header k1" onclick="toggleSection(this)">
 <span class="mgmt-expand">▶</span>
@@ -1244,6 +1064,320 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 <div class="task-header" onclick="toggleTask(this)">
 <span class="task-expand">▶</span>
 <input type="text" class="task-name" value="시범운영" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 2: 체크리스트 배포 -->
+<div class="mgmt-section open" data-section-id="s1-2">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📋 체크리스트 배포" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-2-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="물량별 평균 공사일수" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-2-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="현장 필수 체크사항" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-2-3" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="관리주체 주요 질문 응대멘트" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 3: 자료 고도화&최신화 -->
+<div class="mgmt-section open" data-section-id="s1-3">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="📊 자료 고도화&최신화" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-3-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="공법비교표 데이터 취합" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-3-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="공법비교표 대시보드 구현" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-3-3" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="공고문 최신화" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-3-4" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="현설자료 최신화" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 4: 미가동 고객사 추적 -->
+<div class="mgmt-section open" data-section-id="s1-4">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="🔄 미가동 고객사 추적" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-4-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="자료 우편발송" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-4-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="세미나 독려" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
+<!-- 대제목 6: 신규 협력사 온보딩 -->
+<div class="mgmt-section open" data-section-id="s1-6">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="🚀 신규 협력사 온보딩" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-6-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="신규협력사 대시보드 구축" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-6-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="가동리스트 추출" onclick="event.stopPropagation()" onchange="autoSave()">
 <select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
 <option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
 </select>
@@ -2331,23 +2465,31 @@ let mindmapFilter = 'all';
 // 초기 관리지표 데이터 (Firebase에 데이터 없을 때 사용)
 const DEFAULT_MGMT_DATA = [
   // KPI 1 - 협력사 활성 가동율
-  {id:'s1-1', kpi:'1', title:'📑 현장 판단 기준자료 구성 및 배포', open:true, tasks:[]},
-  {id:'s1-2', kpi:'1', title:'📋 체크리스트 배포', open:true, tasks:[
-    {id:'t1-2-1', name:'물량별 평균 공사일수', assignee:'ja', progress:0, subtasks:[]},
-    {id:'t1-2-2', name:'현장 필수 체크사항', assignee:'ja', progress:0, subtasks:[]},
-    {id:'t1-2-3', name:'관리주체 주요 질문 응대멘트', assignee:'ja', progress:0, subtasks:[]}
-  ]},
-  {id:'s1-3', kpi:'1', title:'📊 공법 기준표 제공', open:true, tasks:[]},
-  {id:'s1-4', kpi:'1', title:'🔄 미가동 고객사 추적', open:true, tasks:[
-    {id:'t1-4-1', name:'자료 우편발송', assignee:'ja', progress:0, subtasks:[]},
-    {id:'t1-4-2', name:'세미나 독려', assignee:'ja', progress:0, subtasks:[]}
-  ]},
   {id:'s1-5', kpi:'1', title:'📊 현장운영 대시보드 구축', open:true, tasks:[
     {id:'t1-5-1', name:'내부자료정리', assignee:'ja', progress:0, subtasks:[]},
     {id:'t1-5-2', name:'데이터구조설계', assignee:'ja', progress:0, subtasks:[]},
     {id:'t1-5-3', name:'고유번호부여', assignee:'ja', progress:0, subtasks:[]},
     {id:'t1-5-4', name:'표준화', assignee:'ja', progress:0, subtasks:[]},
     {id:'t1-5-5', name:'시범운영', assignee:'ja', progress:0, subtasks:[]}
+  ]},
+  {id:'s1-2', kpi:'1', title:'📋 체크리스트 배포', open:true, tasks:[
+    {id:'t1-2-1', name:'물량별 평균 공사일수', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-2-2', name:'현장 필수 체크사항', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-2-3', name:'관리주체 주요 질문 응대멘트', assignee:'ja', progress:0, subtasks:[]}
+  ]},
+  {id:'s1-3', kpi:'1', title:'📊 자료 고도화&최신화', open:true, tasks:[
+    {id:'t1-3-1', name:'공법비교표 데이터 취합', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-3-2', name:'공법비교표 대시보드 구현', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-3-3', name:'공고문 최신화', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-3-4', name:'현설자료 최신화', assignee:'ja', progress:0, subtasks:[]}
+  ]},
+  {id:'s1-4', kpi:'1', title:'🔄 미가동 고객사 추적', open:true, tasks:[
+    {id:'t1-4-1', name:'자료 우편발송', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-4-2', name:'세미나 독려', assignee:'ja', progress:0, subtasks:[]}
+  ]},
+  {id:'s1-6', kpi:'1', title:'🚀 신규 협력사 온보딩', open:true, tasks:[
+    {id:'t1-6-1', name:'신규협력사 대시보드 구축', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-6-2', name:'가동리스트 추출', assignee:'ja', progress:0, subtasks:[]}
   ]},
   // KPI 2 - 거래 회수 안정화
   {id:'s2-1', kpi:'2', title:'⏰ 예정입금일 리마인드', open:true, tasks:[]},
@@ -3487,10 +3629,55 @@ function autoSave(){
   window.saveTimeout = setTimeout(saveAll, 300);
 }
 
-// 페이지 종료 시 미저장 데이터 즉시 저장
+// 페이지 종료 시 미저장 데이터 즉시 localStorage에 저장 (Firebase는 비동기라 종료 전 완료 불가)
 window.addEventListener('beforeunload', function(){
   clearTimeout(window.saveTimeout);
-  saveAll();
+  try {
+    collectAllMgmtData();
+    let totalSubtasks = 0;
+    currentMgmtData.forEach(s => {
+      if(s.tasks) s.tasks.forEach(t => {
+        if(t.subtasks) totalSubtasks += t.subtasks.length;
+      });
+    });
+    const data={
+      ts:new Date().toISOString(),
+      company:document.getElementById('company-goal')?.value||'',
+      mission:document.getElementById('team-mission')?.value||'',
+      sales:document.getElementById('current-sales')?.value||0,
+      grades:{s:15,a:16,b:58,c:109,n:52,f:10},
+      grades26:{
+        s:parseInt(document.getElementById('grade26-s')?.value)||0,
+        a:parseInt(document.getElementById('grade26-a')?.value)||0,
+        b:parseInt(document.getElementById('grade26-b')?.value)||0,
+        c:parseInt(document.getElementById('grade26-c')?.value)||0,
+        n:parseInt(document.getElementById('grade26-n')?.value)||0,
+        f:parseInt(document.getElementById('grade26-f')?.value)||0
+      },
+      acts:{},tracker:{},
+      memoData:memoData,
+      etcTasks:etcTasks,
+      etcTaskCounter:etcTaskCounter,
+      mgmtSections:currentMgmtData,
+      sectionCounter:sectionCounter,
+      taskCounter:taskCounter,
+      subtaskCounter:subtaskCounter,
+      calendar:[]
+    };
+    document.querySelectorAll('input[data-k][data-a][data-w]').forEach(cb=>{
+      data.acts[`${cb.dataset.k}-${cb.dataset.a}-${cb.dataset.w}`]=cb.checked;
+    });
+    document.querySelectorAll('input[data-t]').forEach(cb=>{
+      data.tracker[cb.dataset.t]=cb.checked;
+    });
+    document.querySelectorAll('.day-check.checked').forEach(el=>{
+      if(el.dataset.cal) data.calendar.push(el.dataset.cal);
+    });
+    localStorage.setItem('kpi-data', JSON.stringify(data));
+    localStorage.setItem('kpi-backup', JSON.stringify(data));
+  } catch(e) {
+    console.error('beforeunload 저장 오류:', e);
+  }
 });
 
 function saveAll(){
@@ -3568,8 +3755,11 @@ function saveAll(){
       window.firebaseSet(dbRef, data).then(() => {
         console.log('✅ Firebase 저장 완료:', new Date().toLocaleTimeString());
         showToast('☁️ 클라우드 저장완료');
-        // localStorage에도 백업
-        try { localStorage.setItem('kpi-backup', JSON.stringify(data)); } catch(e){}
+        // localStorage에도 백업 (kpi-data와 kpi-backup 모두)
+        try {
+          localStorage.setItem('kpi-data', JSON.stringify(data));
+          localStorage.setItem('kpi-backup', JSON.stringify(data));
+        } catch(e){}
       }).catch((error) => {
         console.error('❌ Firebase 저장 오류:', error);
         // Firebase 실패 시 localStorage에 저장
@@ -4459,11 +4649,14 @@ function updateTaskProgressFromSubtasks(taskCard){
 function initProgressDots(taskCard, kpi){
   const dotsWrap = taskCard.querySelector('.progress-dots');
   if(!dotsWrap) return;
-  
+
+  const currentProgress = parseInt(taskCard.dataset.progress) || 0;
+
   dotsWrap.innerHTML = '';
   for(let i = 1; i <= 10; i++){
     const dot = document.createElement('span');
     dot.className = 'progress-dot k' + kpi;
+    if(i * 10 <= currentProgress) dot.classList.add('filled');
     dot.dataset.val = i * 10;
     dot.onclick = function(e){ e.stopPropagation(); setTaskProgress(this, i * 10); };
     dotsWrap.appendChild(dot);
@@ -4474,11 +4667,14 @@ function initProgressDots(taskCard, kpi){
 function initSubtaskDots(subtaskItem, kpi){
   const dotsWrap = subtaskItem.querySelector('.subtask-dots');
   if(!dotsWrap) return;
-  
+
+  const currentProgress = parseInt(subtaskItem.dataset.progress) || 0;
+
   dotsWrap.innerHTML = '';
   for(let i = 1; i <= 10; i++){
     const dot = document.createElement('span');
     dot.className = 'subtask-dot';
+    if(i * 10 <= currentProgress) dot.classList.add('filled');
     dot.dataset.val = i * 10;
     dot.onclick = function(){ setSubtaskProgress(this, i * 10); };
     dotsWrap.appendChild(dot);
@@ -4906,12 +5102,25 @@ function initNewMgmtSystem(){
   updateTeamOverview();
 }
 
-// Firebase가 준비될 때까지 기다린 후 초기화
+// Firebase가 준비될 때까지 기다린 후 초기화 (최대 3초)
+let firebaseWaitCount = 0;
 function waitForFirebase() {
-  if (window.firebaseReady) {
+  if (window.firebaseReady === true) {
+    init();
+  } else if (window.firebaseReady === false) {
+    // Firebase 초기화 실패 - localStorage 모드로 즉시 시작
+    console.warn('⚠️ Firebase 사용 불가 - localStorage 모드로 시작');
     init();
   } else {
-    setTimeout(waitForFirebase, 50);
+    firebaseWaitCount++;
+    if(firebaseWaitCount > 60) {
+      // 3초(50ms * 60) 초과 - 타임아웃, localStorage 모드로 시작
+      console.warn('⚠️ Firebase 준비 타임아웃 - localStorage 모드로 시작');
+      window.firebaseReady = false;
+      init();
+    } else {
+      setTimeout(waitForFirebase, 50);
+    }
   }
 }
 waitForFirebase();
