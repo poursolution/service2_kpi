@@ -551,7 +551,22 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 .mindmap-cat-icon.k4{background:var(--kpi4-light);color:var(--kpi4)}
 .mindmap-cat-icon.k5{background:#fef3c7;color:#d97706}
 .mindmap-cat-name{font-size:0.7rem;font-weight:700;color:var(--gray-800)}
-.mindmap-tasks-line{width:16px;height:2px;background:var(--gray-200);margin-top:12px}
+.mindmap-sections-line{width:16px;height:2px;background:var(--gray-300);margin-top:12px}
+.mindmap-sections{display:flex;flex-direction:column;position:relative}
+.mindmap-sections::before{content:'';position:absolute;width:2px;background:var(--gray-300)}
+.mindmap-side.left .mindmap-sections::before{right:0;top:5px;bottom:5px}
+.mindmap-side.right .mindmap-sections::before{left:0;top:5px;bottom:5px}
+.mindmap-section-row{display:flex;align-items:flex-start;padding:3px 0}
+.mindmap-side.left .mindmap-section-row{flex-direction:row-reverse}
+.mindmap-section-line{width:14px;height:2px;background:var(--gray-300);margin-top:10px}
+.mindmap-section-wrap{display:flex;align-items:flex-start}
+.mindmap-side.left .mindmap-section-wrap{flex-direction:row-reverse}
+.mindmap-section-label{padding:4px 8px;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid #7dd3fc;border-radius:6px;font-size:0.6rem;font-weight:700;color:#0369a1;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.mindmap-section-label.k1{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-color:#fca5a5;color:#b91c1c}
+.mindmap-section-label.k2{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;color:#1d4ed8}
+.mindmap-section-label.k3{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#86efac;color:#15803d}
+.mindmap-section-label.k4{background:linear-gradient(135deg,#fefce8,#fef9c3);border-color:#fde047;color:#a16207}
+.mindmap-tasks-line{width:12px;height:2px;background:var(--gray-200);margin-top:8px}
 .mindmap-tasks{display:flex;flex-direction:column;position:relative}
 .mindmap-tasks::before{content:'';position:absolute;width:2px;background:var(--gray-200)}
 .mindmap-side.left .mindmap-tasks::before{right:0;top:5px;bottom:5px}
@@ -4839,10 +4854,15 @@ function renderMindmap(){
     const progress = parseInt(card.dataset.progress) || 0;
     const kpi = card.closest('.mgmt-container')?.dataset.kpi || '1';
     const taskId = card.dataset.taskId;
-    
+
+    // 관리지표(섹션) 정보 수집
+    const section = card.closest('.mgmt-section');
+    const sectionName = section?.querySelector('.mgmt-title-input')?.value || '';
+    const sectionId = section?.dataset.sectionId || '';
+
     // 모든 메모 이력 가져오기
     const taskMemos = memoData[taskId] || [];
-    
+
     // 하위업무(subtasks) 수집
     const subtasks = [];
     card.querySelectorAll('.subtask-item').forEach(sub => {
@@ -4852,10 +4872,10 @@ function renderMindmap(){
         subtasks.push({name: subName, done: subDone});
       }
     });
-    
+
     // KPI 4(업무자동화)는 항상 포함, 나머지는 필터 적용
     if(mindmapFilter === 'all' || kpi === '4' || assignee === mindmapFilter){
-      tasks.push({name, progress, kpi, assignee, memos: taskMemos, subtasks: subtasks});
+      tasks.push({name, progress, kpi, assignee, memos: taskMemos, subtasks: subtasks, sectionName, sectionId});
     }
   });
   
@@ -4938,6 +4958,72 @@ function renderMindmapBranch(kpi, allTasks, side){
   const names = {ja:'정아', yr:'지연', sj:'수진'};
   const kpiClass = kpi.num === 'etc' ? '5' : kpi.num;  // 기타업무용 스타일
   
+  // 관리지표(섹션)별로 그룹핑
+  const sectionMap = new Map();
+  tasks.forEach(t => {
+    const key = t.sectionId || '_no_section';
+    if(!sectionMap.has(key)) sectionMap.set(key, {name: t.sectionName || '', tasks: []});
+    sectionMap.get(key).tasks.push(t);
+  });
+  const sections = Array.from(sectionMap.values());
+  const hasSections = sections.length > 0 && sections.some(s => s.name);
+
+  function renderTaskItem(t){
+    const hasSubtasks = t.subtasks && t.subtasks.length > 0;
+    const hasMemos = t.memos && t.memos.length > 0;
+    const hasContent = hasSubtasks || hasMemos;
+    return `
+      <div class="mindmap-task-row">
+        <div class="mindmap-task-line"></div>
+        <div class="mindmap-task ${t.progress >= 100 ? 'done' : ''} ${hasContent ? 'has-content' : ''}">
+          <div class="mindmap-task-header">
+            <span class="mindmap-task-name">${t.name}</span>
+            <span class="mindmap-task-pct">${t.progress}%</span>
+            ${mindmapFilter === 'all' ? `<span class="mindmap-task-assignee ${t.assignee}">${names[t.assignee]}</span>` : ''}
+          </div>
+          ${hasSubtasks ? `
+            <div class="mindmap-subtasks">
+              ${t.subtasks.map(sub => `
+                <div class="mindmap-subtask-item ${sub.done ? 'done' : ''}">
+                  <span class="mindmap-subtask-check">${sub.done ? '✓' : '○'}</span>
+                  <span class="mindmap-subtask-name">${sub.name}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${hasMemos ? `
+            <div class="mindmap-task-memos">
+              ${t.memos.map(m => `<div class="mindmap-memo-item">📝 ${m.date ? m.date + ' ' : ''}${m.text}</div>`).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>`;
+  }
+
+  // 관리지표가 있는 KPI는 섹션별로 그룹핑, 없으면 기존처럼 직접 렌더
+  const innerContent = hasSections ? `
+    <div class="mindmap-sections-line"></div>
+    <div class="mindmap-sections">
+      ${sections.map(sec => `
+        <div class="mindmap-section-row">
+          <div class="mindmap-section-line"></div>
+          <div class="mindmap-section-wrap">
+            <div class="mindmap-section-label k${kpiClass}">${sec.name}</div>
+            <div class="mindmap-tasks-line"></div>
+            <div class="mindmap-tasks">
+              ${sec.tasks.map(t => renderTaskItem(t)).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : `
+    <div class="mindmap-tasks-line"></div>
+    <div class="mindmap-tasks">
+      ${tasks.map(t => renderTaskItem(t)).join('')}
+    </div>
+  `;
+
   return `
     <div class="mindmap-branch">
       <div class="mindmap-cat-line"></div>
@@ -4946,41 +5032,7 @@ function renderMindmapBranch(kpi, allTasks, side){
           <div class="mindmap-cat-icon k${kpiClass}">${kpi.icon}</div>
           <div class="mindmap-cat-name">${kpi.num === 'etc' ? '' : kpi.num + '. '}${kpi.name}</div>
         </div>
-        <div class="mindmap-tasks-line"></div>
-        <div class="mindmap-tasks">
-          ${tasks.map(t => {
-            const hasSubtasks = t.subtasks && t.subtasks.length > 0;
-            const hasMemos = t.memos && t.memos.length > 0;
-            const hasContent = hasSubtasks || hasMemos;
-            
-            return `
-            <div class="mindmap-task-row">
-              <div class="mindmap-task-line"></div>
-              <div class="mindmap-task ${t.progress >= 100 ? 'done' : ''} ${hasContent ? 'has-content' : ''}">
-                <div class="mindmap-task-header">
-                  <span class="mindmap-task-name">${t.name}</span>
-                  <span class="mindmap-task-pct">${t.progress}%</span>
-                  ${mindmapFilter === 'all' ? `<span class="mindmap-task-assignee ${t.assignee}">${names[t.assignee]}</span>` : ''}
-                </div>
-                ${hasSubtasks ? `
-                  <div class="mindmap-subtasks">
-                    ${t.subtasks.map(sub => `
-                      <div class="mindmap-subtask-item ${sub.done ? 'done' : ''}">
-                        <span class="mindmap-subtask-check">${sub.done ? '✓' : '○'}</span>
-                        <span class="mindmap-subtask-name">${sub.name}</span>
-                      </div>
-                    `).join('')}
-                  </div>
-                ` : ''}
-                ${hasMemos ? `
-                  <div class="mindmap-task-memos">
-                    ${t.memos.map(m => `<div class="mindmap-memo-item">📝 ${m.date ? m.date + ' ' : ''}${m.text}</div>`).join('')}
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-          `;}).join('')}
-        </div>
+        ${innerContent}
       </div>
     </div>
   `;
