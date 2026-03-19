@@ -1339,6 +1339,68 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--gray-50)
 </div>
 </div>
 
+<!-- 대제목 6: 신규 협력사 온보딩 -->
+<div class="mgmt-section open" data-section-id="s1-6">
+<div class="mgmt-header k1" onclick="toggleSection(this)">
+<span class="mgmt-expand">▶</span>
+<input type="text" class="mgmt-title-input" value="🚀 신규 협력사 온보딩" onclick="event.stopPropagation()" onchange="autoSave()">
+<div class="mgmt-progress">
+<div class="mgmt-progress-bar"><div class="mgmt-progress-fill k1" style="width:0%"></div></div>
+<span class="mgmt-progress-text k1">0%</span>
+</div>
+<button class="mgmt-del" onclick="event.stopPropagation();deleteSection(this)">×</button>
+</div>
+<div class="mgmt-body">
+<div class="task-list">
+<div class="task-card" data-task-id="t1-6-1" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="신규협력사 대시보드 구축" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+<div class="task-card" data-task-id="t1-6-2" data-progress="0" data-assignee="ja">
+<div class="task-header" onclick="toggleTask(this)">
+<span class="task-expand">▶</span>
+<input type="text" class="task-name" value="가동리스트 추출" onclick="event.stopPropagation()" onchange="autoSave()">
+<select class="task-assignee ja" onchange="changeAssignee(this)" onclick="event.stopPropagation()">
+<option value="ja" selected>정아</option><option value="yr">지연</option><option value="sj">수진</option>
+</select>
+<div class="progress-bar-wrap" onclick="event.stopPropagation()">
+<div class="progress-dots" data-kpi="1"></div>
+<span class="task-pct">0%</span>
+</div>
+<button class="task-memo-btn" onclick="event.stopPropagation();openTaskMemo(this)">📝</button>
+<button class="task-del" onclick="event.stopPropagation();deleteTask(this)">×</button>
+</div>
+<div class="subtask-body">
+<div class="subtask-list"></div>
+<div class="add-row">
+<input type="text" class="add-input" placeholder="하위업무 추가..." onkeypress="if(event.key==='Enter')addSubtask(this)">
+<button class="add-btn" onclick="addSubtask(this.previousElementSibling)">+ 추가</button>
+</div>
+</div>
+</div>
+</div>
+<button class="add-task-btn" onclick="addTask(this)">+ 업무 추가</button>
+</div>
+</div>
+
 <button class="add-section-btn" onclick="addSection(1)">+ 새 관리지표(대제목) 추가</button>
 </div>
 </div>
@@ -2424,6 +2486,10 @@ const DEFAULT_MGMT_DATA = [
   {id:'s1-4', kpi:'1', title:'🔄 미가동 고객사 추적', open:true, tasks:[
     {id:'t1-4-1', name:'자료 우편발송', assignee:'ja', progress:0, subtasks:[]},
     {id:'t1-4-2', name:'세미나 독려', assignee:'ja', progress:0, subtasks:[]}
+  ]},
+  {id:'s1-6', kpi:'1', title:'🚀 신규 협력사 온보딩', open:true, tasks:[
+    {id:'t1-6-1', name:'신규협력사 대시보드 구축', assignee:'ja', progress:0, subtasks:[]},
+    {id:'t1-6-2', name:'가동리스트 추출', assignee:'ja', progress:0, subtasks:[]}
   ]},
   // KPI 2 - 거래 회수 안정화
   {id:'s2-1', kpi:'2', title:'⏰ 예정입금일 리마인드', open:true, tasks:[]},
