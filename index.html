@@ -2400,42 +2400,13 @@ async function init(){
   calcKpi3();calcKpi4();calcSales();calcGrade26();
 }
 
-// 모든 관리지표 렌더링
+// 모든 관리지표 렌더링 (저장된 데이터에서 누락된 섹션도 새로 생성)
 function renderAllMgmtSections(){
-  // 각 KPI별로 저장된 섹션 렌더링
-  [1,2,3,4].forEach(kpi => {
-    const container = document.getElementById('mgmt-container-' + kpi);
-    if(!container) return;
-    
-    // 해당 KPI의 섹션들 필터링
-    const kpiSections = currentMgmtData.filter(s => s.kpi === String(kpi));
-    
-    // 각 섹션별로 렌더링
-    kpiSections.forEach(savedSection => {
-      let section = container.querySelector(`[data-section-id="${savedSection.id}"]`);
-      
-      if(section){
-        // 제목 복원
-        const titleInput = section.querySelector('.mgmt-title-input');
-        if(titleInput && savedSection.title) titleInput.value = savedSection.title;
-        
-        // 열기/닫기 상태
-        if(savedSection.open !== false) section.classList.add('open');
-        else section.classList.remove('open');
-        
-        // task-list 찾아서 업무 렌더링
-        const taskList = section.querySelector('.task-list');
-        if(taskList && savedSection.tasks && savedSection.tasks.length > 0){
-          taskList.innerHTML = '';  // 기존 내용 비우기
-          savedSection.tasks.forEach(taskData => {
-            const taskEl = createTaskElement(taskData, kpi);
-            taskList.appendChild(taskEl);
-          });
-        }
-      }
-    });
-  });
-  
+  // restoreMgmtSections를 사용하여 누락된 섹션도 생성
+  if(currentMgmtData && currentMgmtData.length > 0){
+    restoreMgmtSections(currentMgmtData);
+  }
+
   // 진행률 도트 초기화
   setTimeout(() => {
     initNewMgmtSystem();
@@ -3516,6 +3487,12 @@ function autoSave(){
   window.saveTimeout = setTimeout(saveAll, 300);
 }
 
+// 페이지 종료 시 미저장 데이터 즉시 저장
+window.addEventListener('beforeunload', function(){
+  clearTimeout(window.saveTimeout);
+  saveAll();
+});
+
 function saveAll(){
   try {
     // 현재 DOM에서 모든 데이터 수집
@@ -3842,13 +3819,22 @@ function restoreMgmtSections(sections){
     byKpi[s.kpi].push(s);
   });
   
-  // 각 KPI별로 복원
-  Object.keys(byKpi).forEach(kpi => {
+  // 각 KPI별로 복원 (4개 KPI 모두 처리)
+  [1,2,3,4].forEach(kpiNum => {
+    const kpi = String(kpiNum);
     const container = document.getElementById(`mgmt-container-${kpi}`);
     if(!container) return;
-    
-    const savedSections = byKpi[kpi];
-    
+
+    const savedSections = byKpi[kpi] || [];
+    const savedIds = new Set(savedSections.map(s => s.id));
+
+    // 저장 데이터에 없는 기존 섹션 제거 (사용자가 삭제한 섹션)
+    container.querySelectorAll('.mgmt-section').forEach(existingSection => {
+      if(!savedIds.has(existingSection.dataset.sectionId)) {
+        existingSection.remove();
+      }
+    });
+
     savedSections.forEach(sectionData => {
       // 섹션 찾기 또는 생성
       let section = container.querySelector(`[data-section-id="${sectionData.id}"]`);
@@ -3892,13 +3878,16 @@ function restoreMgmtSections(sections){
         section.classList.remove('open');
       }
       
-      // 업무 복원
+      // 업무 복원 - 기존 task-list를 비우고 저장 데이터로 재구성
       const taskList = section.querySelector('.task-list');
       if(!taskList || !sectionData.tasks) return;
-      
+
+      // 기존 업무 모두 제거 (저장 데이터 기준으로 재구성)
+      taskList.innerHTML = '';
+
       sectionData.tasks.forEach(taskData => {
-        let task = taskList.querySelector(`[data-task-id="${taskData.id}"]`);
-        
+        let task = null;
+
         if(!task) {
           // 새 업무 생성
           task = document.createElement('div');
