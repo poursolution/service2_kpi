@@ -5041,7 +5041,27 @@ function renderMindmapBranch(kpi, allTasks, side){
 async function downloadMindmapPng(){
   try {
     showToast('PNG 생성 중...');
-    const canvas = await html2canvas(document.getElementById('mindmap-container'), {backgroundColor:'#f8fafc',scale:2});
+    const modal = document.querySelector('.mindmap-modal');
+    const content = document.querySelector('.mindmap-content');
+    const container = document.getElementById('mindmap-container');
+    // 원래 스타일 저장
+    const origModalH = modal.style.height;
+    const origModalMaxH = modal.style.maxHeight;
+    const origContentOverflow = content.style.overflow;
+    const origContentMaxH = content.style.maxHeight;
+    // 캡처를 위해 높이/스크롤 제한 해제
+    modal.style.height = 'auto';
+    modal.style.maxHeight = 'none';
+    content.style.overflow = 'visible';
+    content.style.maxHeight = 'none';
+    // 레이아웃 반영 대기
+    await new Promise(r => setTimeout(r, 100));
+    const canvas = await html2canvas(container, {backgroundColor:'#f8fafc',scale:2,useCORS:true,scrollY:0,scrollX:0,windowWidth:container.scrollWidth,windowHeight:container.scrollHeight});
+    // 스타일 복원
+    modal.style.height = origModalH;
+    modal.style.maxHeight = origModalMaxH;
+    content.style.overflow = origContentOverflow;
+    content.style.maxHeight = origContentMaxH;
     const link = document.createElement('a');
     const names = {all:'전체', ja:'정아', yr:'지연', sj:'수진'};
     link.download = '서비스운영2팀_마인드맵_' + names[mindmapFilter] + '_' + new Date().toISOString().slice(0,10) + '.png';
